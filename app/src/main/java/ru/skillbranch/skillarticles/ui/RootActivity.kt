@@ -2,17 +2,57 @@ package ru.skillbranch.skillarticles.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.Toolbar
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
+import kotlinx.android.synthetic.main.layout_bottombar.*
+import kotlinx.android.synthetic.main.layout_submenu.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
+import ru.skillbranch.skillarticles.viewmodels.ArticleState
+import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
+import ru.skillbranch.skillarticles.viewmodels.ViewModelFactory
 
 class RootActivity : AppCompatActivity() {
+
+    private lateinit var viewModel: ArticleViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_root)
         setupToolbar()
+        setupBottomBar()
+        setupSubmenu()
+
+        val vmFactory = ViewModelFactory("0")
+        viewModel = ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
+        viewModel.observeState(this){
+            renderUi(it)
+        }
+    }
+
+    private fun setupSubmenu() {
+        btn_text_up.setOnClickListener{viewModel.handleUpText()}
+        btn_text_down.setOnClickListener{viewModel.handleDownText()}
+        switch_mode.setOnClickListener{viewModel.handleNightMode()}
+    }
+
+    private fun setupBottomBar() {
+        btn_like.setOnClickListener{viewModel.handleLike()}
+        btn_bookmark.setOnClickListener{viewModel.handleBookmark()}
+        btn_share.setOnClickListener{viewModel.handleShare()}
+        btn_settings.setOnClickListener{viewModel.handleToggleMenu()}
+    }
+
+    private fun renderUi(data: ArticleState) {
+        btn_settings.isChecked = data.isShowMenu
+        Log.d("M_renderUi", data.isShowMenu.toString())
+        if(data.isShowMenu) submenu.open() else submenu.close()
     }
 
     private fun setupToolbar() {
