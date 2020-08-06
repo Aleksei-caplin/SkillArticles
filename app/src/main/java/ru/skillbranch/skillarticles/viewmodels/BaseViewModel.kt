@@ -35,7 +35,11 @@ abstract class BaseViewModel<T>(initState:T): ViewModel() {
         state.observe(owner, Observer { onChanged(it!!) })
     }
 
-
+    /***
+     * более компактная форма записи observe() метода LiveData вызывает лямбда выражение обработчик
+     * только в том случае если уведомление не было уже обработанно ранее,
+     * реализует данное поведение с помощью EventObserver
+     */
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify) -> Unit) {
         notification.observe(owner, EventObserver{ onNotify(it) })
     }
