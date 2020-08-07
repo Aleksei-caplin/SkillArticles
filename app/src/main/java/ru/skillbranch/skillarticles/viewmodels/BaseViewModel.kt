@@ -8,7 +8,7 @@ import androidx.lifecycle.*
 abstract class BaseViewModel<T>(initState:T): ViewModel() {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    val notification = MutableLiveData<Event<Notify>>()
+    val notifications = MutableLiveData<Event<Notify>>()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val state: MediatorLiveData<T> = MediatorLiveData<T>().apply {
@@ -27,7 +27,7 @@ abstract class BaseViewModel<T>(initState:T): ViewModel() {
 
     @UiThread
     protected fun notify(content:Notify) {
-        notification.value = Event(content)
+        notifications.value = Event(content)
     }
 
     //более компактная запись
@@ -41,7 +41,7 @@ abstract class BaseViewModel<T>(initState:T): ViewModel() {
      * реализует данное поведение с помощью EventObserver
      */
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify) -> Unit) {
-        notification.observe(owner, EventObserver{ onNotify(it) })
+        notifications.observe(owner, EventObserver{ onNotify(it) })
     }
 
     protected fun <S> subscribeOnDataSource(
