@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -37,6 +38,12 @@ class RootActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
         viewModel.observeState(this){
             renderUi(it)
+
+            //restore search mode
+            if (it.isSearch) {
+                isSearching = true
+                searchQuery = it.searchQuery
+            }
         }
         viewModel.observeNotifications(this) {
             renderNotification(it)
@@ -51,6 +58,7 @@ class RootActivity : AppCompatActivity() {
 
         //restore SearchView
         if (isSearching) {
+            Log.d("M_Menu", "click")
             menuItem?.expandActionView()
             searchView?.setQuery(searchQuery, false)
             searchView?.clearFocus()

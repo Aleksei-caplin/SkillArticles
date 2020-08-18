@@ -5,8 +5,8 @@
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_black_24dp"
-        android:title="Search"
-        android:actionLayout="@layout/layout_search_view"
+        android:title="Поиск"
+        app:actionLayout="@layout/search_view_layout"
         app:showAsAction="always|collapseActionView"/>
 
 
