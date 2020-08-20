@@ -112,7 +112,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     }
 
     override fun hideSearchBar() {
-        bottombar.setSearchState(true)
+        bottombar.setSearchState(false)
         scroll.setMarginOptionally(bottom = dpToIntPx(0))
     }
 
@@ -206,9 +206,9 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             viewModel.handleDownResult()
         }
 
-        btn_search_close.setOnClickListener{
+        btn_search_close.setOnClickListener {
             viewModel.handleSearchMode(false)
-            invalidateOptionsMenu() // toolbar вернтся к изначальному значению
+            invalidateOptionsMenu()
         }
     }
 
@@ -224,7 +224,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             it.marginEnd = this.dpToIntPx(16)
             logo.layoutParams = it
         }
-        
+
     }
 
     inner class ArticleBinding(): Binding() {
