@@ -14,7 +14,7 @@ import kotlin.reflect.KProperty
  */
 
 
-class ViewModelDelegate<T : ViewModel>(private val classe: Class<T>, private val arg: Any?) :
+class ViewModelDelegate<T : ViewModel>(private val clazz: Class<T>, private val arg: Any?) :
     ReadOnlyProperty<FragmentActivity, T> {
 
     private lateinit var value: T
@@ -22,8 +22,8 @@ class ViewModelDelegate<T : ViewModel>(private val classe: Class<T>, private val
     override fun getValue(thisRef: FragmentActivity, property: KProperty<*>): T {
 
         if (!::value.isInitialized) value = when (arg) {
-            null -> ViewModelProviders.of(thisRef).get(classe)
-            else -> ViewModelProviders.of(thisRef, ViewModelFactory(arg)).get(classe)
+            null -> ViewModelProviders.of(thisRef).get(clazz)
+            else -> ViewModelProviders.of(thisRef, ViewModelFactory(arg)).get(clazz)
         }
         return value
     }
