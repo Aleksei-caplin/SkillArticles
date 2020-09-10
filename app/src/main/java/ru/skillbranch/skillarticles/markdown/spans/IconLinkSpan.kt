@@ -40,7 +40,25 @@ class IconLinkSpan(
         bottom: Int,
         paint: Paint
     ) {
-        //TODO implement me
+        val textStart = x + iconSize + padding
+        paint.forLine {
+            path.reset()
+            path.moveTo(textStart, bottom.toFloat())
+            path.lineTo(textStart + textWidth, bottom.toFloat())
+            canvas.drawPath(path, paint)
+        }
+
+        paint.forIcon {             // 02:27:56
+            canvas.save()
+            val trY = bottom - linkDrawable.bounds.bottom
+            canvas.translate(x, trY.toFloat())
+            linkDrawable.draw(canvas)
+            canvas.restore()
+        }
+
+        paint.forText {
+            canvas.drawText(text, start, end, textStart, y.toFloat(), paint)
+        }
     }
 
 
@@ -51,20 +69,56 @@ class IconLinkSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
-        //TODO implement me
-        return 0
+
+        if (fm != null) {
+            iconSize = fm.descent - fm.ascent  // font size
+            linkDrawable.setBounds(0, 0, iconSize, iconSize)
+            linkDrawable.setTint(iconColor)
+        }
+        textWidth = paint.measureText(text.toString(), start, end)
+        return (iconSize + padding + textWidth).toInt()
     }
 
 
     private inline fun Paint.forLine(block: () -> Unit) {
-        //TODO implement me
+        //                                         02:22:45
+        val oldColor = color
+        val oldStyle = style
+        val oldWith = strokeWidth
+
+        pathEffect = dashs
+        color = textColor
+        style = Paint.Style.STROKE
+        strokeWidth = 0f
+
+        block()
+
+        color = oldColor
+        style = oldStyle
+        strokeWidth = oldWith
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
-        //TODO implement me
+        //                                         02:27:30
+        val oldColor = color
+
+        color = textColor
+
+        block()
+
+        color = oldColor
     }
 
     private inline fun Paint.forIcon(block: () -> Unit) {
-        //TODO implement me
+        val oldColor = color
+        val oldStyle = style
+
+        color = textColor
+        style = Paint.Style.STROKE
+
+        block()
+
+        color = oldColor
+        style = oldStyle
     }
 }
