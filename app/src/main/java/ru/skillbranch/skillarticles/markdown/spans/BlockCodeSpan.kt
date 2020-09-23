@@ -21,6 +21,7 @@ class BlockCodeSpan(
 ) : ReplacementSpan() {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var rect = RectF()
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
@@ -98,6 +99,7 @@ class BlockCodeSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
+
         if (fm != null) {
             when (type) {
                 Element.BlockCode.Type.START -> {
