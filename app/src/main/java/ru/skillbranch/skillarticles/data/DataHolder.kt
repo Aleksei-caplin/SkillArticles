@@ -28,7 +28,6 @@ object LocalDataHolder {
             )
         }
         return articleData
-
     }
 
     fun findArticlePersonalInfo(articleId: String): LiveData<ArticlePersonalInfo?> {
@@ -77,7 +76,6 @@ data class ArticlePersonalInfo(
     val isBookmark: Boolean = false
 )
 
-
 data class AppSettings(
     val isDarkMode: Boolean = false,
     val isBigText: Boolean = false
@@ -92,38 +90,27 @@ before header text
 ##### Header5 Header5 Header5 Header5 Header5
 ###### Header6 Header6 Header6 Header6 Header6 Header6
 after header text and break line
-
 Emphasis, aka italics, with *asterisks* or _underscores_.
-
 Strong emphasis, aka bold, with **asterisks** or __underscores__.
-
 Strikethrough uses two tildes. ~~Scratch this.~~
-
 Combined emphasis with **asterisks and _underscores_**.
 or emphasis with __underscores and *asterisks*__.
 or _underscores for italic and **asterisks for inner bold**_.
 or *asterisks for italic and __underscores for inner bold__*.
 or strikethrough ~~two tildes for strike~~
-
 And combine with asterisks and underscores ~~two tildes for strike and __underscores for inner strike bold__ and **asterisks for inner strike bold**~~.
 and combined emphasis together ~~two tildes for strike and __underscores for inner *strike italic bold*__ and **asterisks for inner _strike italic bold_**~~.
-
 * Unordered list can use double **asterisks** or double __underscores__ for emphasis aka **bold**
 - Use minuses for list item and _underscores_ and *asterisks* for emphasis aka *italic*
 + Or use plus for list item and ~~double tildes~~ for strike
-
 1. First ordered list item 
 2. Second item 
 3. Third item.
-
 > Blockquotes are very handy in ~~email~~ to emulate reply text.
 > This line is *part* of __the__ same quote.
-
 Use ` for wrap `inline code` split `code with line break
 not` work `only inline`
-
 simple single line 
-
 Use ``` for wrap block code
 ```code block.code block.code block```
 also it work for multiline code block 
@@ -137,12 +124,9 @@ or three asterisks
 ***
 or three minus
 ---
-
 simple text and break line
-
 For inline link use `[for title]` and `(for link)` 
 example link: [I'm an inline-style link](https://www.google.com)
 simple text and break line
-
 end markdown text
 """.trimIndent()

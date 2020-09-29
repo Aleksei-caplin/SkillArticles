@@ -17,3 +17,17 @@ fun View.setMarginOptionally(
     params.setMargins(left, top, right, bottom)
     this.requestLayout()
 }
+
+fun View.setPaddingOptionally(
+    left: Int = paddingLeft,
+    top: Int = paddingTop,
+    right: Int = paddingRight,
+    bottom: Int = paddingBottom
+) {
+    // ???
+    setPadding(left, top, right, bottom)
+}
+
+fun View.setPadding(padding: Int) {
+    setPadding(padding, padding, padding, padding)
+}
