@@ -4,4 +4,3 @@
     android:color="@color/ripple_color"
     android:radius="20dp" >
 </ripple>
-

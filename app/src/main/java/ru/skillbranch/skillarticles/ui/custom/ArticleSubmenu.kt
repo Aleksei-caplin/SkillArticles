@@ -20,35 +20,34 @@ class ArticleSubmenu @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-): ConstraintLayout(context, attrs, defStyleAttr), CoordinatorLayout.AttachedBehavior {
+) : ConstraintLayout(context, attrs, defStyleAttr), CoordinatorLayout.AttachedBehavior {
+
+    override fun getBehavior(): CoordinatorLayout.Behavior<*> {
+        return SubmenuBehavior()
+    }
 
     var isOpen = false
     private var centerX: Float = context.dpToPx(200)
     private var centerY: Float = context.dpToPx(96)
 
     init {
-        // add material bg for handle elevation and color surface
         View.inflate(context, R.layout.layout_submenu, this)
+        //add material bg for handle elevation and color surface
         val materialBg = MaterialShapeDrawable.createWithElevationOverlay(context)
         materialBg.elevation = elevation
         background = materialBg
     }
 
-    override fun getBehavior(): CoordinatorLayout.Behavior<*> {
-        return SubmenuBehavior()
-    }
-
     fun open() {
-        if(isOpen|| !isAttachedToWindow) return
+        if (isOpen || !isAttachedToWindow) return
         isOpen = true
         animatedShow()
     }
 
     fun close() {
-        if(!isOpen || !isAttachedToWindow) return
+        if (!isOpen || !isAttachedToWindow) return
         isOpen = false
         animatedHide()
-
     }
 
     private fun animatedShow() {
@@ -97,25 +96,26 @@ class ArticleSubmenu @JvmOverloads constructor(
         }
     }
 
-    private class SavedState: BaseSavedState, Parcelable {
+    private class SavedState : BaseSavedState, Parcelable {
         var ssIsOpen: Boolean = false
 
-        constructor(superState: Parcelable?): super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
-        constructor(src: Parcel): super(src) {
+        constructor(src: Parcel) : super(src) {
             ssIsOpen = src.readInt() == 1
         }
 
         override fun writeToParcel(dst: Parcel, flags: Int) {
             super.writeToParcel(dst, flags)
-            dst.writeInt(if(ssIsOpen) 1 else 0)
+            dst.writeInt(if (ssIsOpen) 1 else 0)
         }
 
         override fun describeContents() = 0
 
-        companion object CREATOR: Parcelable.Creator<SavedState> {
+        companion object CREATOR : Parcelable.Creator<SavedState> {
             override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
             override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
         }
     }
+
 }

@@ -6,7 +6,6 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewAnimationUtils
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.animation.doOnEnd
@@ -21,39 +20,43 @@ class Bottombar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-): ConstraintLayout(context, attrs, defStyleAttr), CoordinatorLayout.AttachedBehavior {
+) : ConstraintLayout(context, attrs, defStyleAttr), CoordinatorLayout.AttachedBehavior {
 
     var isSearchMode = false
 
-    init{
-        View.inflate(context, R.layout.layout_bottombar, this )
+    override fun getBehavior(): CoordinatorLayout.Behavior<Bottombar> {
+        return BottombarBehavior()
+    }
+
+    init {
+        View.inflate(context, R.layout.layout_bottombar, this)
         val materialBg = MaterialShapeDrawable.createWithElevationOverlay(context)
         materialBg.elevation = elevation
         background = materialBg
     }
 
-    override fun getBehavior(): CoordinatorLayout.Behavior<*> {
-        return BottombarBehavior()
-    }
-
-    // save state
+    //save state
     override fun onSaveInstanceState(): Parcelable? {
         val savedState = SavedState(super.onSaveInstanceState())
+        savedState.ssTranslationY = translationY
+        //search
         savedState.ssIsSearchMode = isSearchMode
         return savedState
     }
 
-    // restore state
-    override fun onRestoreInstanceState(state: Parcelable?) {
+    //restore state
+    override fun onRestoreInstanceState(state: Parcelable) {
         super.onRestoreInstanceState(state)
-        if(state is SavedState) {
+        if (state is SavedState) {
+            translationY = state.ssTranslationY
+            // search
             isSearchMode = state.ssIsSearchMode
             reveal.isVisible = isSearchMode
             group_bottom.isVisible = !isSearchMode
+
         }
     }
 
-    // функция, которая устанавливает текущий state (находимся в режиме поиска или нет)
     fun setSearchState(search: Boolean) {
         if(isSearchMode == search || !isAttachedToWindow) return
         isSearchMode = search
@@ -64,35 +67,34 @@ class Bottombar @JvmOverloads constructor(
     private fun animateHideSearchPanel() {
         group_bottom.isVisible = true
         val endRadius = hypot(width.toFloat(), height/2f)
-        val va = ViewAnimationUtils.createCircularReveal (
+        val va = ViewAnimationUtils.createCircularReveal(
             reveal,
             width,
             height/2,
             endRadius,
             0f
         )
-        va.doOnEnd { reveal.isVisible = false }
+        va.doOnEnd { reveal.isVisible = false}
         va.start()
     }
 
     private fun animateShowSearchPanel() {
         reveal.isVisible = true
         val endRadius = hypot(width.toFloat(), height/2f)
-        val va = ViewAnimationUtils.createCircularReveal (
+        val va = ViewAnimationUtils.createCircularReveal(
             reveal,
             width,
             height/2,
             0f,
             endRadius
         )
-        va.doOnEnd { group_bottom.isVisible = false }
+        va.doOnEnd { group_bottom.isVisible = false}
         va.start()
     }
 
-    // сохраняем количество найденных вхождений
     fun bindSearchInfo(searchCount: Int = 0, position: Int = 0) {
-        if(searchCount == 0 ) {
-            tv_search_result.text = "Not found"
+        if (searchCount == 0) {
+            tv_search_result.text = context.getString(R.string.search_text_not_found)
             btn_result_up.isEnabled = false
             btn_result_down.isEnabled = false
         } else {
@@ -101,33 +103,34 @@ class Bottombar @JvmOverloads constructor(
             btn_result_down.isEnabled = true
         }
 
-        // lock button press in min/max position
+        // lock button presses in min/max positions
         when(position) {
-            0 -> btn_result_up.isEnabled = false
-            searchCount -1 -> btn_result_down.isEnabled = false
+            0-> btn_result_up.isEnabled = false
+            searchCount - 1 -> btn_result_down.isEnabled = false
         }
     }
 
-
-    // приватный класс в котором сохранякм состояние view
-    private class SavedState: BaseSavedState, Parcelable {
+    private class SavedState : BaseSavedState, Parcelable {
+        var ssTranslationY: Float = 0f
         var ssIsSearchMode: Boolean = false
 
-        constructor(superState: Parcelable?): super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
-        constructor(src: Parcel): super(src) {
+        constructor(src: Parcel) : super(src) {
+            ssTranslationY = src.readFloat()
             ssIsSearchMode = src.readInt() == 1
         }
 
         override fun writeToParcel(dst: Parcel, flags: Int) {
             super.writeToParcel(dst, flags)
-            dst.writeInt(if(ssIsSearchMode) 1 else 0)
+            dst.writeFloat(ssTranslationY)
+            dst.writeInt(if (ssIsSearchMode) 1 else 0)
         }
 
         override fun describeContents() = 0
 
-        companion object CREATOR: Parcelable.Creator<SavedState> {
-            override fun createFromParcel(parsel: Parcel) = SavedState(parsel)
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
             override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
         }
     }

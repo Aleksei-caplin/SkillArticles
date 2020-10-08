@@ -33,7 +33,7 @@ class InlineCodeSpan(
     ): Int {
         paint.forText {
             val measureText = paint.measureText(text.toString(), start, end)
-            measureWidth = (measureText + 2*padding).toInt()
+            measureWidth = (measureText + 2 * padding).toInt()
         }
         return measureWidth
     }
@@ -50,7 +50,7 @@ class InlineCodeSpan(
         paint: Paint
     ) {
         paint.forBackground {
-            rect.set(x, top.toFloat(), x + measureWidth, bottom.toFloat())
+            rect.set(x, top.toFloat(),x + measureWidth, y + paint.descent())
             canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
         }
 
@@ -72,7 +72,7 @@ class InlineCodeSpan(
         block()
 
         color = oldColor
-        typeface = oldFont
+        typeface= oldFont
         textSize = oldSize
     }
 
@@ -88,5 +88,4 @@ class InlineCodeSpan(
         color = oldColor
         style = oldStyle
     }
-
 }

@@ -18,11 +18,9 @@ class IconLinkSpan(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var iconSize = 0
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var textWidth = 0f
     private val dashs = DashPathEffect(floatArrayOf(dotWidth, dotWidth), 0f)
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
@@ -41,15 +39,15 @@ class IconLinkSpan(
         paint.forLine {
             path.reset()
             path.moveTo(textStart, y + paint.descent())
-            path.lineTo(textStart + textWidth, y + paint.descent())
+            path.lineTo(textStart + textWidth, bottom.toFloat())
             canvas.drawPath(path, paint)
         }
 
-        // !!!!!!!!!!! 02:15:11
         canvas.save()
         val trY = y + paint.descent() - linkDrawable.bounds.bottom
-        canvas.translate(x + padding/2f, trY)
+        canvas.translate(x + padding/2, trY)
         linkDrawable.draw(canvas)
+        canvas.restore()
 
         paint.forText {
             canvas.drawText(text, start, end, textStart, y.toFloat(), paint)
@@ -64,10 +62,9 @@ class IconLinkSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
-
         if (fm != null) {
-            iconSize = fm.descent - fm.ascent  // font size
-            linkDrawable.setBounds(0, 0, iconSize, iconSize)
+            iconSize = fm.descent - fm.ascent //fontSize
+            linkDrawable.setBounds(0,0, iconSize, iconSize)
         }
         textWidth = paint.measureText(text.toString(), start, end)
         return (iconSize + padding + textWidth).toInt()
@@ -75,10 +72,9 @@ class IconLinkSpan(
 
 
     private inline fun Paint.forLine(block: () -> Unit) {
-        //                                         02:22:45
         val oldColor = color
         val oldStyle = style
-        val oldWith = strokeWidth
+        val oldWidth = strokeWidth
 
         pathEffect = dashs
         color = textColor
@@ -89,15 +85,13 @@ class IconLinkSpan(
 
         color = oldColor
         style = oldStyle
-        strokeWidth = oldWith
+        strokeWidth = oldWidth
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
-        //                                         02:27:30
         val oldColor = color
 
         color = textColor
-
         block()
 
         color = oldColor

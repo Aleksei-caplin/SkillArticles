@@ -8,13 +8,13 @@ object ArticleRepository {
     private val local = LocalDataHolder
     private val network = NetworkDataHolder
 
-    fun loadArticleContent(articleId: String): LiveData<List<MarkdownElement>?> { // 01:48:10
+    fun loadArticleContent(articleId: String): LiveData<List<MarkdownElement>?> {
+        //5s delay from network
         return Transformations.map(network.loadArticleContent(articleId)) {
             return@map if (it == null) null
             else MarkdownParser.parse(it)
         }
     }
-
     fun getArticle(articleId: String): LiveData<ArticleData?> {
         return local.findArticle(articleId) //2s delay from db
     }
@@ -24,7 +24,6 @@ object ArticleRepository {
     }
 
     fun getAppSettings(): LiveData<AppSettings> = local.getAppSettings() //from preferences
-
     fun updateSettings(appSettings: AppSettings) {
         local.updateAppSettings(appSettings)
     }
