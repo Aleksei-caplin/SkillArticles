@@ -2,6 +2,10 @@ package ru.skillbranch.skillarticles.extensions
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -23,34 +27,31 @@ fun Context.dpToIntPx(dp: Int): Int {
     ).toInt()
 }
 
-
-fun Context.attrValue(res: Int):Int{
-    val tv = TypedValue()
-    return if (theme.resolveAttribute(res,tv,true)) tv.data else -1
+fun Context.attrValue(resId: Int): Int {
+    val typedValue = TypedValue()
+    if (theme.resolveAttribute(resId, typedValue, true)) {
+        return typedValue.data
+    } else {
+        throw Resources.NotFoundException("Resource with id $resId not found")
+    }
 }
 
-fun Context.hideKeyboard(view: View){
+fun Context.hideKeyboard(view: View) {
     val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(view.windowToken,0)
+    imm.hideSoftInputFromWindow(view.windowToken, 0)
 }
 
-fun Context.showKeyboard(view: View){
-    val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.showSoftInput(view,0)
-}
-
-
-//val Context.isNetworkAvailable: Boolean
-//    get() {
-//        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            cm.activeNetwork?.run {
-//                val nc = cm.getNetworkCapabilities(this)
-//                nc!!.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || nc.hasTransport(
-//                    NetworkCapabilities.TRANSPORT_WIFI
-//                )
-//            } ?: false
-//        } else {
-//            cm.activeNetworkInfo?.run { isConnectedOrConnecting } ?: false
-//        }
-//    }
+val Context.isNetworkAvailable: Boolean
+    get() {
+        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            cm.activeNetwork?.run {
+                val nc = cm.getNetworkCapabilities(this)
+                nc!!.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || nc.hasTransport(
+                    NetworkCapabilities.TRANSPORT_WIFI
+                )
+            } ?: false
+        } else {
+            cm.activeNetworkInfo?.run { isConnectedOrConnecting } ?: false
+        }
+    }

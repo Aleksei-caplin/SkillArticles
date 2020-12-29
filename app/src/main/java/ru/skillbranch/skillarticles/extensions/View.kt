@@ -1,55 +1,55 @@
 package ru.skillbranch.skillarticles.extensions
 
-import android.app.Activity
+import android.os.Parcelable
+import android.util.Log
+import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.core.view.marginBottom
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
-import androidx.core.view.marginTop
+import androidx.core.view.children
 import androidx.navigation.NavDestination
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import ru.skillbranch.skillarticles.ui.custom.Bottombar
 
-fun View.setMarginOptionally(
-    left: Int = marginLeft,
-    top: Int = marginTop,
-    right: Int = marginRight,
-    bottom: Int = marginBottom
-) {
-    if (layoutParams is ViewGroup.LayoutParams) {
-        val params = layoutParams as ViewGroup.MarginLayoutParams
-        params.setMargins(left, top, right, bottom)
-        requestLayout()
+fun View.setMarginOptionally(left: Int? = null, top: Int? = null,
+                             right: Int? = null, bottom: Int? = null)
+{
+    layoutParams<ViewGroup.MarginLayoutParams> {
+        left?.let { leftMargin = it }
+        top?.let { topMargin =  it }
+        right?.let { rightMargin =  it }
+        bottom?.let { bottomMargin =  it }
     }
 }
 
-fun View.setPaddingOptionally(
-    left: Int = paddingLeft,
-    right: Int = paddingRight,
-    top: Int = paddingTop,
-    bottom: Int = paddingBottom
-) {
-    setPadding(left, top, right, bottom)
+fun View.setPaddingOptionally(left: Int = paddingLeft, top: Int = paddingTop,
+                             right: Int = paddingRight, bottom: Int = paddingBottom)
+{
+    setPadding(left , top , right, bottom)
 }
 
-fun View.hideKeyboard() {
-    if (isFocused) {
-        val inputMethodManager =
-            context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block: T.() -> Unit) {
+    if (layoutParams is T) block(layoutParams as T)
+}
+
+inline fun <reified T: View> View.idTag(idx: Int): String = "cv${T::class.java.simpleName}_${idx}"
+
+
+fun ViewGroup.saveChildViewStates(): SparseArray<Parcelable> {
+    val childViewStates = SparseArray<Parcelable>()
+    children.forEach { child -> child.saveHierarchyState(childViewStates) }
+    return childViewStates
+}
+
+fun ViewGroup.restoreChildViewStates(childViewStates: SparseArray<Parcelable>) {
+    children.forEach { child -> child.restoreHierarchyState(childViewStates) }
+}
+
+fun View.selectDestination( destination: NavDestination) {
+    if (destination.parent?.parent == null) {
+        if (this is BottomNavigationView) {
+            menu.children
+                .filter { menuItem -> menuItem.itemId == destination.id }
+                .forEach { menuItem -> menuItem.isChecked = true }
+        }
     }
-}
-
-fun View.showKeyboard() {
-    if (isFocused) {
-        val inputMethodManager =
-            context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(this, 0)
-    }
-}
-
-private fun View.selectDestination(destination: NavDestination) {
-    if(this is BottomNavigationView){}
-
 }

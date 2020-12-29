@@ -20,7 +20,10 @@ class ViewModelFactory(
         handle: SavedStateHandle
     ): T {
         if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
-            return ArticleViewModel(handle, params as String) as T
+            return ArticleViewModel(
+                handle,
+                params as String
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -50,7 +50,7 @@ class InlineCodeSpan(
         paint: Paint
     ) {
         paint.forBackground {
-            rect.set(x, top.toFloat(), x + measureWidth, y + paint.descent())
+            rect.set(x, top.toFloat(),x + measureWidth, y + paint.descent())
             canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
         }
 
@@ -72,7 +72,7 @@ class InlineCodeSpan(
         block()
 
         color = oldColor
-        typeface = oldFont
+        typeface= oldFont
         textSize = oldSize
     }
 

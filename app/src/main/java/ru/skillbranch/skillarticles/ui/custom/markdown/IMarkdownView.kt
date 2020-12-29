@@ -3,6 +3,7 @@ package ru.skillbranch.skillarticles.ui.custom.markdown
 import android.text.Spannable
 import android.text.SpannableString
 import androidx.core.text.getSpans
+import androidx.core.text.set
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
 
@@ -16,8 +17,7 @@ interface IMarkdownView {
     ) {
         clearSearchResult()
         val offsetResult = results
-            .map { (start, end) -> start.minus(offset) to end.minus(offset) }
-
+            .map {(start, end) -> start.minus(offset) to end.minus(offset) }
         offsetResult.forEach { (start, end) ->
             spannableContent.setSpan(
                 SearchSpan(),
@@ -31,9 +31,8 @@ interface IMarkdownView {
     fun renderSearchPosition(
         searchPosition: Pair<Int, Int>,
         offset: Int
-    ) {
+    ){
         spannableContent.getSpans<SearchFocusSpan>().forEach { spannableContent.removeSpan(it) }
-
         spannableContent.setSpan(
             SearchFocusSpan(),
             searchPosition.first.minus(offset),
@@ -42,7 +41,7 @@ interface IMarkdownView {
         )
     }
 
-    fun clearSearchResult() {
+    fun clearSearchResult(){
         spannableContent.getSpans<SearchSpan>().forEach { spannableContent.removeSpan(it) }
     }
 }
