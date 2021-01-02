@@ -7,14 +7,13 @@
     android:theme="@style/ArticleBarsTheme"
     android:layout_width="200dp"
     android:layout_height="96dp"
-    android:layout_gravity="bottom|end"
-    android:layout_marginEnd="8dp"
+    android:layout_gravity="bottom|right"
     android:elevation="8dp"
+    android:layout_marginRight="8dp"
     android:layout_marginBottom="8dp"
     app:layout_dodgeInsetEdges="bottom"
     android:visibility="gone"
-    tools:visibility="visible"
-    >
+    tools:visibility="visible"    >
 
     <ru.skillbranch.skillarticles.ui.custom.CheckableImageView
         android:id="@+id/btn_text_down"

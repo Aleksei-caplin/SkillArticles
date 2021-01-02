@@ -16,8 +16,6 @@ class UnderlineSpan(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
-    //constructor(underlineColor: Int) : this(underlineColor, dotWidth = 6f)
-
     override fun draw(
         canvas: Canvas,
         text: CharSequence,

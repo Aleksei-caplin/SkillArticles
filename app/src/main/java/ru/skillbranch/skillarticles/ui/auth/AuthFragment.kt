@@ -3,7 +3,6 @@ package ru.skillbranch.skillarticles.ui.auth
 import android.text.Spannable
 import androidx.core.text.set
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import kotlinx.android.synthetic.main.fragment_auth.*
 import ru.skillbranch.skillarticles.R
@@ -22,14 +21,17 @@ class AuthFragment : BaseFragment<AuthViewModel>() {
         tv_privacy.setOnClickListener {
             viewModel.navigate(NavigationCommand.To(R.id.page_privacy_policy))
         }
-        btn_login.setOnClickListener{
-            viewModel.handleLogin(et_login.text.toString(), et_password.text.toString(),
-                if (args.privateDestination == -1) null else args.privateDestination)
+
+        btn_login.setOnClickListener {
+            viewModel.handleLogin(
+                et_login.text.toString(),
+                et_password.text.toString(),
+                if (args.privateDestination == -1) null else args.privateDestination
+            )
         }
 
         val color = root.attrValue(R.attr.colorPrimary)
-        (tv_access_code.text as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
-        (tv_privacy.text as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
-
+        (tv_access_code.text as? Spannable)?.let { it[0..it.length] = UnderlineSpan(color) }
+        (tv_privacy.text as? Spannable)?.let { it[0..it.length] = UnderlineSpan(color) }
     }
 }
