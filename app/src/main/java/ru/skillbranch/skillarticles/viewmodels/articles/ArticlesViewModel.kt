@@ -39,8 +39,10 @@ class ArticlesViewModel(handle: SavedStateHandle) :
 
     fun observeList(
         owner: LifecycleOwner,
+        isBookmark: Boolean = false,
         onChanged: (list: PagedList<ArticleItemData>) -> Unit
     ) {
+        updateState { it.copy(isBookmark = isBookmark) }
         listData.observe(owner, Observer { onChanged(it) })
     }
 
@@ -126,7 +128,8 @@ class ArticlesViewModel(handle: SavedStateHandle) :
 data class ArticlesState(
     val isSearch: Boolean = false,
     val searchQuery: String? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val isBookmark: Boolean = true
 ) : IViewModelState
 
 class ArticlesBoundaryCallback(
