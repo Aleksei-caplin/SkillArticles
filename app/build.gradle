@@ -1,21 +1,22 @@
-apply plugin: "com.android.application"
-apply plugin: "kotlin-android"
-apply plugin: "kotlin-android-extensions"
-apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: "kotlin-kapt"
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: 'kotlin-kapt'
 apply from: "../versions.gradle"
 
+
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 30
+    buildToolsVersion '30.0.2'
     defaultConfig {
         applicationId "ru.skillbranch.skillarticles"
-        minSdkVersion 23
-        targetSdkVersion 29
+        minSdkVersion 24
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunner "ru.skillbranch.skillarticles.CustomTestRunner"
+        //testInstrumentationRunner "ru.skillbranch.skillarticles.CustomTestRunner"
     }
     buildTypes {
         release {
@@ -23,20 +24,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions{
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions{
+    kotlinOptions {
         jvmTarget = "1.8"
     }
-    androidExtensions{
-        experimental = true
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
 }
 
 dependencies {
-
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -53,9 +50,9 @@ dependencies {
     // Lifecycle, ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    // implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
+   // implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
-    // kapt "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+   // kapt "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     //testImplementation "androidx.arch.core:core-testing:2.1.0"
 
     // Navigation
