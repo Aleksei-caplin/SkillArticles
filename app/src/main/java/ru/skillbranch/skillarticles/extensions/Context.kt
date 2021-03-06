@@ -1,15 +1,12 @@
 package ru.skillbranch.skillarticles.extensions
 
-import android.app.Activity
 import android.content.Context
-import android.content.res.Resources
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import androidx.annotation.AttrRes
 
 fun Context.dpToPx(dp: Int): Float {
@@ -29,13 +26,18 @@ fun Context.dpToIntPx(dp: Int): Int {
     ).toInt()
 }
 
-fun Context.hideKeyboard(view: View){
-    val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(view.windowToken, 0)
+fun Context.attrValue(@AttrRes id: Int): Int {
+    val value = TypedValue()
+    if (theme.resolveAttribute(id, value, true)) {
+        value.data
+        return value.data
+    } else {
+        error("can not attribute for : $id")
+    }
 }
 
-fun Context.showKeyboard(view: EditText){
-    val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+fun Context.showKeyboard(view: View) {
+    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
 }
 
@@ -53,9 +55,3 @@ val Context.isNetworkAvailable: Boolean
             cm.activeNetworkInfo?.run { isConnectedOrConnecting } ?: false
         }
     }
-
-fun Context.attrValue(@AttrRes res: Int): Int {
-    val tv = TypedValue()
-    if (theme.resolveAttribute(res, tv, true)) return tv.data
-    else throw Resources.NotFoundException("Resource with id $res not found")
-}

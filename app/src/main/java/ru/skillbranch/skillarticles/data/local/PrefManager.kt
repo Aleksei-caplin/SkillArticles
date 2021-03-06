@@ -1,7 +1,11 @@
 package ru.skillbranch.skillarticles.data.local
 
 import android.content.SharedPreferences
-import androidx.lifecycle.*
+import androidx.core.content.edit
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import androidx.preference.PreferenceManager
 import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.JsonConverter.moshi
@@ -27,8 +31,7 @@ object PrefManager {
         val token by PrefLiveDelegate("accessToken", "", preferences)
         token.map { it.isNotEmpty() }
     }
-
-    val profileLive: LiveData<User?> by PrefLiveObjDelegate (
+    val profileLive: LiveData<User?> by PrefLiveObjDelegate(
         "profile",
         moshi.adapter(User::class.java),
         preferences
@@ -42,10 +45,10 @@ object PrefManager {
         addSource(isDarkModeLive) {
             value = value!!.copy(isDarkMode = it)
         }
-
         addSource(isBigTextLive) {
             value = value!!.copy(isBigText = it)
         }
+
     }.distinctUntilChanged()
 
     fun clearAll() {

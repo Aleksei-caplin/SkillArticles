@@ -10,12 +10,15 @@ import ru.skillbranch.skillarticles.data.remote.err.ErrorBody
 class ErrorStatusInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val res = chain.proceed(chain.request())
+
         if (res.isSuccessful) return res
+
         val errMessage = try {
             moshi.adapter(ErrorBody::class.java).fromJson(res.body!!.string())?.message
         } catch (e: JsonEncodingException) {
             e.message
         }
+
         when (res.code) {
             400 -> throw ApiError.BadRequest(errMessage)
             401 -> throw ApiError.Unauthorized(errMessage)
@@ -24,5 +27,6 @@ class ErrorStatusInterceptor : Interceptor {
             500 -> throw ApiError.InternalServerError(errMessage)
             else -> throw ApiError.UnknownError(errMessage)
         }
+
     }
 }

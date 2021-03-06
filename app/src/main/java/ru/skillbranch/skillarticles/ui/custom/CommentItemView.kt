@@ -210,4 +210,5 @@ class CommentItemView(context: Context) : ViewGroup(context, null, 0) {
             iv_answer_icon.isVisible = item.answerTo != null
         }
     }
+
 }

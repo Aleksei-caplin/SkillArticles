@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.data.repositories
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -16,7 +15,6 @@ import ru.skillbranch.skillarticles.data.local.entities.ArticleFull
 import ru.skillbranch.skillarticles.data.models.AppSettings
 import ru.skillbranch.skillarticles.data.remote.NetworkManager
 import ru.skillbranch.skillarticles.data.remote.RestService
-import ru.skillbranch.skillarticles.data.remote.err.ApiError
 import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
 import ru.skillbranch.skillarticles.data.remote.req.MessageReq
 import ru.skillbranch.skillarticles.data.remote.res.CommentRes
@@ -26,24 +24,24 @@ interface IArticleRepository {
     fun findArticle(articleId: String): LiveData<ArticleFull>
     fun getAppSettings(): LiveData<AppSettings>
     fun isAuth(): LiveData<Boolean>
-    fun updateSettings(appSettings: AppSettings)
+    fun updateSettings(settings: AppSettings)
 
     suspend fun toggleLike(articleId: String): Boolean
     suspend fun toggleBookmark(articleId: String): Boolean
+    suspend fun sendMessage(articleId: String, message: String, answerToMessageId: String?)
+    suspend fun refreshCommentsCount(articleId: String)
+    suspend fun fetchArticleContent(articleId: String)
     suspend fun decrementLike(articleId: String)
     suspend fun incrementLike(articleId: String)
     suspend fun addBookmark(articleId: String)
     suspend fun removeBookmark(articleId: String)
-    suspend fun sendMessage(articleId: String, message: String, answerToMessageId: String?)
-    suspend fun refreshCommentsCount(articleId: String)
-    suspend fun fetchArticleContent(articleId: String)
-
-    fun findArticleCommentCount(articleId: String): LiveData<Int>
     fun loadAllComments(
         articleId: String,
         totalCount: Int,
         errHandler: (Throwable) -> Unit
     ): CommentsDataFactory
+
+    fun findArticleCommentCount(articleId: String): LiveData<Int>
 }
 
 object ArticleRepository : IArticleRepository {
@@ -79,14 +77,6 @@ object ArticleRepository : IArticleRepository {
     override fun updateSettings(settings: AppSettings) {
         preferences.isBigText = settings.isBigText
         preferences.isDarkMode = settings.isDarkMode
-    }
-
-    override suspend fun toggleLike(articleId: String): Boolean {
-        return articlePersonalDao.toggleLikeOrInsert(articleId)
-    }
-
-    override suspend fun toggleBookmark(articleId: String): Boolean {
-        return articlePersonalDao.toggleBookmarkOrInsert(articleId)
     }
 
     override suspend fun decrementLike(articleId: String) {
@@ -126,6 +116,34 @@ object ArticleRepository : IArticleRepository {
         }
     }
 
+    override suspend fun addBookmark(articleId: String) {
+        if (preferences.accessToken.isEmpty()) return
+        try {
+            network.addBookmark(articleId, preferences.accessToken)
+        } catch (e: Throwable) {
+            if (e is NoNetworkError) return
+            throw e
+        }
+    }
+
+    override suspend fun removeBookmark(articleId: String) {
+        if (preferences.accessToken.isEmpty()) return
+        try {
+            network.removeBookmark(articleId, preferences.accessToken)
+        } catch (e: Throwable) {
+            if (e is NoNetworkError) return
+            throw e
+        }
+    }
+
+    override suspend fun toggleLike(articleId: String): Boolean {
+        return articlePersonalDao.toggleLikeOrInsert(articleId)
+    }
+
+    override suspend fun toggleBookmark(articleId: String): Boolean {
+        return articlePersonalDao.toggleBookmarkOrInsert(articleId)
+    }
+
     override suspend fun sendMessage(
         articleId: String,
         message: String,
@@ -150,7 +168,8 @@ object ArticleRepository : IArticleRepository {
     }
 
     override fun findArticleCommentCount(articleId: String): LiveData<Int> {
-        return articleCountsDao.getCommentsCount(articleId).distinctUntilChanged()
+        return articleCountsDao.getCommentsCount(articleId)
+            .distinctUntilChanged()
     }
 
     override fun loadAllComments(
@@ -163,26 +182,6 @@ object ArticleRepository : IArticleRepository {
         totalCount = totalCount,
         errHandler = errHandler
     )
-
-    override suspend fun addBookmark(articleId: String) {
-        if (preferences.accessToken.isEmpty()) return
-        try {
-            network.addBookmark(articleId, preferences.accessToken)
-        } catch (e: Throwable) {
-            if (e is NoNetworkError) return
-            throw e
-        }
-    }
-
-    override suspend fun removeBookmark(articleId: String) {
-        if (preferences.accessToken.isEmpty()) return
-        try {
-            network.removeBookmark(articleId, preferences.accessToken)
-        } catch (e: Throwable) {
-            if (e is NoNetworkError) return
-            throw e
-        }
-    }
 }
 
 class CommentsDataFactory(

@@ -2,10 +2,11 @@
 <androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rv_bookmarks"
+    android:id="@+id/categories_list"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-    tools:context=".ui.bookmarks.BookmarksFragment"
-    tools:itemCount="4"
-    tools:listitem="@layout/item_article" />
+    tools:context=".ui.dialogs.ChoseCategoryDialog"
+    tools:listitem="@layout/item_category_dialog">
+
+</androidx.recyclerview.widget.RecyclerView>

@@ -8,7 +8,7 @@ import ru.skillbranch.skillarticles.data.remote.res.AuthorRes
 import ru.skillbranch.skillarticles.data.remote.res.CategoryRes
 import java.util.*
 
-fun ArticleDataRes.toArticle() = Article(
+fun ArticleDataRes.toArticle(): Article = Article(
     id = id,
     title = title,
     description = description,
@@ -19,13 +19,13 @@ fun ArticleDataRes.toArticle() = Article(
     updatedAt = Date()
 )
 
-fun AuthorRes.toAuthor() = Author(
+fun AuthorRes.toAuthor() : Author = Author(
     userId = id,
     avatar = avatar,
     name = name
 )
 
-fun CategoryRes.toCategory() = Category(
+fun CategoryRes.toCategory() : Category = Category(
     categoryId = id,
     title = title,
     icon = icon

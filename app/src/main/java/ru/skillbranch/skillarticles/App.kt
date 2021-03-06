@@ -25,11 +25,15 @@ class App : Application() {
 
         NetworkMonitor.registerNetworkMonitor(applicationContext)
 
+        setSavedNightDayMode()
+
+        Stetho.initializeWithDefaults(this)
+    }
+
+    private fun setSavedNightDayMode() {
         val mode = if (PrefManager.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
         else AppCompatDelegate.MODE_NIGHT_NO
 
         AppCompatDelegate.setDefaultNightMode(mode)
-
-        Stetho.initializeWithDefaults(this)
     }
 }

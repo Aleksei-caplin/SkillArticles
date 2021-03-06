@@ -4,4 +4,3 @@ data class MessageReq(
     val message: String,
     val answerTo: String? = null
 )
-

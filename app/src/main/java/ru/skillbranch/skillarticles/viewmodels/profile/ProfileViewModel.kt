@@ -1,7 +1,5 @@
 package ru.skillbranch.skillarticles.viewmodels.profile
 
-import androidx.lifecycle.ViewModel
-
 import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.repositories.ProfileRepository
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
