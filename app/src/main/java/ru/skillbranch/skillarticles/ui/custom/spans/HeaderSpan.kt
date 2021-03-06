@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
@@ -9,13 +10,12 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import androidx.annotation.ColorInt
-import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
 
 
 class HeaderSpan constructor(
-    @IntRange(from = 1, to = 6)
+    @androidx.annotation.IntRange(from = 1, to = 6)
     private val level: Int,
     @ColorInt
     private val textColor: Int,
@@ -28,10 +28,15 @@ class HeaderSpan constructor(
 ) :
     MetricAffectingSpan(), LineHeightSpan, LeadingMarginSpan {
 
+    var topExtraPadding = 0
+    var bottomExtraPadding = 0
+
+    lateinit var firstLineBounds: IntRange
+    lateinit var lastLineBounds: IntRange
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val linePadding = 0.4f
     private var originAscent = 0
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val sizes = mapOf(
         1 to 2f,
@@ -41,11 +46,6 @@ class HeaderSpan constructor(
         5 to 0.875f,
         6 to 0.85f
     )
-
-    var topExtraPadding = 0
-    var bottomExtraPadding = 0
-    lateinit var firstLineBounds: kotlin.ranges.IntRange
-    lateinit var lastLineBounds: kotlin.ranges.IntRange
 
     override fun chooseHeight(
         text: CharSequence?,
@@ -73,8 +73,8 @@ class HeaderSpan constructor(
         //line break +1 character
         if (spanEnd == end.dec()) {
             val originDescent = fm.descent
-            val originalHeight = fm.descent - originAscent
-            fm.descent = (originalHeight * linePadding + marginBottom).toInt()
+            val originHeight = fm.descent - originAscent
+            fm.descent = (originHeight * linePadding + marginBottom).toInt()
             bottomExtraPadding = fm.descent - originDescent
             lastLineBounds = start..end.dec()
         }
@@ -103,8 +103,8 @@ class HeaderSpan constructor(
         lineTop: Int, lineBaseline: Int, lineBottom: Int, text: CharSequence?, lineStart: Int,
         lineEnd: Int, isFirstLine: Boolean, layout: Layout?
     ) {
-        //for 1st & 2nd levels & the last line
-        if ((level in 1..2) && ((text as Spanned).getSpanEnd(this) == lineEnd)) {
+        //for 1 or 2 level and last line
+        if ((level == 1 || level == 2) && (text as Spanned).getSpanEnd(this) == lineEnd) {
             paint.forLine {
                 val lh = (paint.descent() - paint.ascent()) * sizes.getOrElse(level) { 1f }
                 val lineOffset = lineBaseline + lh * linePadding
@@ -118,6 +118,7 @@ class HeaderSpan constructor(
                 )
             }
         }
+        //canvas.drawFontLines(lineTop, lineBottom, lineBaseline, paint)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -139,4 +140,18 @@ class HeaderSpan constructor(
         style = oldStyle
         strokeWidth = oldWidth
     }
+
+    private fun Canvas.drawFontLines(
+        top: Int,
+        bottom: Int,
+        lineBaseline: Int,
+        paint: Paint
+    ) {
+        drawLine(0f, top + 0f, width + 0f, top + 0f, Paint().apply { color = Color.BLUE })
+        drawLine(0f, bottom + 0f, width + 0f, bottom + 0f, Paint().apply { color = Color.GREEN })
+        drawLine(0f,lineBaseline + 0f,width + 0f,lineBaseline + 0f,Paint().apply { color = Color.RED })
+//        drawLine(0f,paint.ascent() + lineBaseline,width + 0f,paint.ascent() + lineBaseline,Paint().apply { color = Color.BLACK })
+//        drawLine(0f,paint.descent() + lineBaseline,width + 0f,paint.descent() + lineBaseline,Paint().apply { color = Color.MAGENTA })
+    }
+
 }

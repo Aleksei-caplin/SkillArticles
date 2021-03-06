@@ -1,30 +1,27 @@
 package ru.skillbranch.skillarticles.viewmodels.profile
 
+import androidx.lifecycle.ViewModel
+
 import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.repositories.ProfileRepository
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 
-class ProfileViewModel(handle: SavedStateHandle) :
-    BaseViewModel<ProfileState>(handle, ProfileState()) {
-
-    val repository = ProfileRepository
+class ProfileViewModel(handle: SavedStateHandle) : BaseViewModel<ProfileState>(handle, ProfileState()) {
+    private val repository = ProfileRepository
 
     init {
         subscribeOnDataSource(repository.getProfile()) { profile, state ->
-            profile?.run {
-                state.copy(
-                    avatar = avatar,
-                    name = name,
-                    about = about,
-                    rating = rating,
-                    respect = respect
-
-                )
-            }
+            profile ?: return@subscribeOnDataSource null
+            state.copy(
+                name = profile.name,
+                avatar = profile.avatar,
+                rating = profile.rating,
+                respect = profile.respect,
+                about = profile.about
+            )
         }
     }
-
 }
 
 data class ProfileState(

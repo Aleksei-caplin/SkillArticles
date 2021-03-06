@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,7 @@ class MarkdownContentView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
     private lateinit var elements: List<MarkdownElement>
-    private var layoutManager: LayoutManager = LayoutManager()
+    private var layoutManager = LayoutManager()
 
     var textSize by Delegates.observable(14f) { _, old, value ->
         if (value == old) return@observable
@@ -35,6 +36,7 @@ class MarkdownContentView @JvmOverloads constructor(
         }
     }
     var isLoading by Delegates.observable(false) { _, _, newValue ->
+        Log.e("MarkdownContentView", "isLoading : $newValue");
         if (!newValue) hideShimmer()
         else showShimmer()
     }
@@ -122,7 +124,6 @@ class MarkdownContentView @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var usedHeight = paddingTop
         val width = getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
-
         children.forEach {
             measureChild(it, widthMeasureSpec, heightMeasureSpec)
             usedHeight += it.measuredHeight
@@ -161,7 +162,7 @@ class MarkdownContentView @JvmOverloads constructor(
 
     fun setContent(content: List<MarkdownElement>) {
         elements = content
-        var index =0
+        var index = 0
         content.forEach {
             when (it) {
                 is MarkdownElement.Text -> {
@@ -172,9 +173,13 @@ class MarkdownContentView @JvmOverloads constructor(
                         )
                         setLineSpacing(fontSize * 0.5f, 1f)
                     }
+
                     MarkdownBuilder(context)
                         .markdownToSpan(it)
-                        .run { tv.setText(this, TextView.BufferType.SPANNABLE) }
+                        .run {
+                            tv.setText(this, TextView.BufferType.SPANNABLE)
+                        }
+
                     addView(tv)
                 }
 
@@ -254,9 +259,7 @@ class MarkdownContentView @JvmOverloads constructor(
     }
 
     override fun onSaveInstanceState(): Parcelable? {
-        val state = SavedState(super.onSaveInstanceState())
-        state.layout = layoutManager
-        return state
+        return SavedState(super.onSaveInstanceState()).apply { layout = layoutManager }
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -286,8 +289,8 @@ class MarkdownContentView @JvmOverloads constructor(
     }
 
     private class LayoutManager() : Parcelable {
-        var ids: MutableList<Int> = mutableListOf()
-        var container: SparseArray<Parcelable> = SparseArray()
+        var ids = mutableListOf<Int>()
+        var container = SparseArray<Parcelable>()
 
         constructor(parcel: Parcel) : this() {
             ids = parcel.createIntArray()!!.toMutableList()
@@ -315,7 +318,6 @@ class MarkdownContentView @JvmOverloads constructor(
         companion object CREATOR : Parcelable.Creator<LayoutManager> {
             override fun createFromParcel(parcel: Parcel): LayoutManager = LayoutManager(parcel)
             override fun newArray(size: Int): Array<LayoutManager?> = arrayOfNulls(size)
-
         }
     }
 
@@ -340,7 +342,6 @@ class MarkdownContentView @JvmOverloads constructor(
 
         companion object CREATOR : Parcelable.Creator<SavedState> {
             override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
-
             override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
         }
     }

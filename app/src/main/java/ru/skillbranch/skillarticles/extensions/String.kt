@@ -1,12 +1,34 @@
 package ru.skillbranch.skillarticles.extensions
 
-fun String?.indexesOf(substr: String, ignoreCase: Boolean = true): List<Int> {
+fun String?.indexesOf(needle: String, ignoreCase: Boolean = true): List<Int> {
 
-    if (this.isNullOrBlank() || substr.isBlank()) return emptyList()
+    val indexes = mutableListOf<Int>()
 
-    val regex = if (ignoreCase) substr.toRegex(RegexOption.IGNORE_CASE) else substr.toRegex()
+    if (this.isNullOrEmpty() || needle.isEmpty()) return indexes
 
-    return regex.findAll(this, 0)
-        .map { it.range.first }
-        .toList()
+    var currentIdx = 0
+
+    while (currentIdx > -1) {
+        currentIdx = indexOf(needle, currentIdx, ignoreCase)
+        if (currentIdx > -1) {
+            indexes.add(currentIdx)
+            currentIdx += needle.length
+        }
+    }
+
+    return indexes
+
+    //TODO boyer moore
+    //val indexes = mutableListOf<Int>()
+    //if (this == null || needle.isEmpty()) return indexes
+//
+    //val needleArr = needle.toCharArray()
+    //var currentIdx = BoyerMoore.indexOf(this.toCharArray(), needleArr)
+//
+    //while (currentIdx != -1) {
+    //    indexes.add(currentIdx)
+    //    currentIdx = BoyerMoore.indexOf(this.substring(currentIdx + needleArr.size).toCharArray(), needleArr)
+    //}
+//
+    //return indexes
 }

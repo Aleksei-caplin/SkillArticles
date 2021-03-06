@@ -3,16 +3,15 @@ package ru.skillbranch.skillarticles
 import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
+import com.facebook.stetho.Stetho
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.remote.NetworkMonitor
 
-class App() : Application() {
-
+class App : Application() {
     companion object {
         private var instance: App? = null
 
         fun applicationContext(): Context {
-            if (instance == null) instance = App()
             return instance!!.applicationContext
         }
     }
@@ -26,9 +25,11 @@ class App() : Application() {
 
         NetworkMonitor.registerNetworkMonitor(applicationContext)
 
-        val mode = if (PrefManager.isDarkMode==true) AppCompatDelegate.MODE_NIGHT_YES
+        val mode = if (PrefManager.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
         else AppCompatDelegate.MODE_NIGHT_NO
 
         AppCompatDelegate.setDefaultNightMode(mode)
+
+        Stetho.initializeWithDefaults(this)
     }
 }

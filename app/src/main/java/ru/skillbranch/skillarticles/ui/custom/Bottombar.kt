@@ -49,6 +49,14 @@ class Bottombar @JvmOverloads constructor(
         }
     }
 
+    fun show() {
+        ObjectAnimator.ofFloat(this, "translationY", 0f).start()
+    }
+
+    fun hide() {
+        ObjectAnimator.ofFloat(this, "translationY", height.toFloat()).start()
+    }
+
     fun setSearchState(search: Boolean) {
         if (isSearchMode == search || !isAttachedToWindow) return
         isSearchMode = search
@@ -97,16 +105,7 @@ class Bottombar @JvmOverloads constructor(
 
         //lock button presses in min/max positions
         if (position == 0) btn_result_up.isEnabled = false
-        if (position == (searchCount - 1)) btn_result_down.isEnabled = false
-
-    }
-
-    fun show() {
-        ObjectAnimator.ofFloat(this, "translationY", 0f).start()
-    }
-
-    fun hide() {
-        ObjectAnimator.ofFloat(this, "translationY", height.toFloat()).start()
+        if (position == searchCount - 1) btn_result_down.isEnabled = false
     }
 
     private class SavedState : BaseSavedState, Parcelable {

@@ -8,11 +8,12 @@
     <fragment
         android:id="@+id/page_article"
         android:name="ru.skillbranch.skillarticles.ui.article.ArticleFragment"
-        android:label="{title}">
+        android:label="{title}"
+        tools:layout="@layout/fragment_article">
         <argument
             android:name="article_id"
-            android:defaultValue="-1"
-            app:argType="string" />
+            app:argType="string"
+            android:defaultValue="-1" />
         <argument
             android:name="author"
             app:argType="string" />
@@ -40,16 +41,32 @@
         android:name="ru.skillbranch.skillarticles.ui.articles.ArticlesFragment"
         android:label="@string/title_articles"
         tools:layout="@layout/fragment_articles">
+        <argument
+            android:name="isBookmarks"
+            app:argType="boolean"
+            android:defaultValue="false"/>
         <action
             android:id="@+id/action_to_page_article"
             app:destination="@id/page_article" />
         <action
-            android:id="@+id/choose_category"
-            app:destination="@id/chose_category_dialog" />
+            android:id="@+id/chose_category"
+            app:destination="@id/dialog_chose_category" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_bookmarks"
+        android:name="ru.skillbranch.skillarticles.ui.articles.ArticlesFragment"
+        android:label="@string/title_bookmarks"
+        tools:layout="@layout/fragment_articles" >
         <argument
-            android:name="is_bookmarks"
-            android:defaultValue="false"
-            app:argType="boolean" />
+            android:name="isBookmarks"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <action
+            android:id="@+id/action_to_page_article"
+            app:destination="@id/page_article" />
+        <action
+            android:id="@+id/chose_category"
+            app:destination="@id/dialog_chose_category" />
     </fragment>
     <fragment
         android:id="@+id/nav_profile"
@@ -57,40 +74,24 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
     <fragment
-        android:id="@+id/nav_bookmarks"
-        android:name="ru.skillbranch.skillarticles.ui.articles.ArticlesFragment"
-        android:label="@string/title_bookmarks"
-        tools:layout="@layout/fragment_articles">
-        <action
-            android:id="@+id/action_to_page_article"
-            app:destination="@id/page_article" />
-        <action
-            android:id="@+id/choose_category"
-            app:destination="@id/chose_category_dialog" />
-        <argument
-            android:name="is_bookmarks"
-            android:defaultValue="true"
-            app:argType="boolean" />
-    </fragment>
-    <fragment
         android:id="@+id/nav_transcriptions"
         android:name="ru.skillbranch.skillarticles.ui.transcriptions.TranscriptionsFragment"
         android:label="@string/title_transcriptions"
         tools:layout="@layout/fragment_transcriptions" />
     <navigation
         android:id="@+id/auth"
-        android:label="@string/title_authorization"
-        app:startDestination="@id/nav_auth">
+        app:startDestination="@id/nav_auth"
+        android:label="@string/title_authorization">
         <fragment
             android:id="@+id/nav_auth"
             android:name="ru.skillbranch.skillarticles.ui.auth.AuthFragment"
             android:label="@string/title_authorization"
-            tools:layout="@layout/fragment_auth">
+            tools:layout="@layout/fragment_auth" >
 
             <argument
                 android:name="private_destination"
-                android:defaultValue="-1"
-                app:argType="integer" />
+                app:argType="integer"
+                android:defaultValue="-1" />
         </fragment>
         <fragment
             android:id="@+id/page_privacy_policy"
@@ -103,21 +104,22 @@
     <!--global actions -->
     <action
         android:id="@+id/start_login"
-        app:destination="@id/auth" />
+        app:destination="@id/auth"/>
     <action
         android:id="@+id/finish_login"
         app:popUpTo="@id/auth"
-        app:popUpToInclusive="true" />
+        app:popUpToInclusive="true"/>
+
     <dialog
-        android:id="@+id/chose_category_dialog"
+        android:id="@+id/dialog_chose_category"
         android:name="ru.skillbranch.skillarticles.ui.dialogs.ChoseCategoryDialog"
         android:label="ChoseCategoryDialog">
         <argument
             android:name="selected_categories"
-            app:argType="string[]" />
+            app:argType="string[]"/>
         <argument
             android:name="categories"
-            app:argType="ru.skillbranch.skillarticles.data.local.entities.CategoryData[]" />
+            app:argType="ru.skillbranch.skillarticles.data.local.entities.CategoryData[]"/>
     </dialog>
 
 </navigation>

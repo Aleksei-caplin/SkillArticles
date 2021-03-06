@@ -3,76 +3,71 @@ package ru.skillbranch.skillarticles.ui.dialogs
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.layout_category_dialog_item.view.*
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.item_category.*
+import kotlinx.android.synthetic.main.item_category.view.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
+import ru.skillbranch.skillarticles.extensions.dpToIntPx
 
-class CategoryAdapter(
-    private val listener: (CategoryItem, Boolean) -> Unit
-) : ListAdapter<CategoryItem, RecyclerView.ViewHolder>(CategoriesDiffUtilCallback()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_category_dialog_item, parent, false)
-        return CategoriesVH(view, listener)
+class CategoryAdapter(private val listener: (CategoryData, Boolean) -> Unit) :
+    ListAdapter<Pair<CategoryData, Boolean>, CategoryVH>(CategoryCallback()) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryVH {
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_category, parent, false)
+        return CategoryVH(view)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = getItem(position)
-        (holder as CategoriesVH).bind(item)
+    override fun onBindViewHolder(holder: CategoryVH, position: Int) {
+        val it = getItem(position)
+        holder.bind(it.first, it.second, listener)
     }
-
 }
 
-private class CategoriesVH(
-    val containerView: View,
-    val listener: (CategoryItem, Boolean) -> Unit
-) : RecyclerView.ViewHolder(containerView) {
+class CategoryVH(override val containerView: View) : RecyclerView.ViewHolder(containerView),
+    LayoutContainer {
 
-    fun bind(item: CategoryItem) {
-        with(containerView) {
-            Glide.with(containerView)
-                .load(item.icon)
-                .into(iv_icon)
+    private val categorySize = containerView.context.dpToIntPx(40)
 
-            tv_category.text = item.title
-            tv_count.text = item.articlesCount.toString()
-            ch_select.isChecked = item.isChecked
+    fun bind(item: CategoryData, checked: Boolean, listener: (CategoryData, Boolean) -> Unit) {
+        containerView.ch_select.isChecked = checked
+        containerView.ch_select.setOnCheckedChangeListener { _, isChecked ->
+            listener(item, isChecked)
+        }
 
-            ch_select.setOnCheckedChangeListener { _, isChecked ->
-                listener(item, isChecked)
-            }
-            setOnClickListener {
-                ch_select.toggle()
-            }
+        Glide.with(containerView.context)
+            .load(item.icon)
+            .circleCrop()
+            .override(categorySize)
+            .into(containerView.iv_icon)
+
+        containerView.tv_category.text = item.title
+        containerView.tv_count.text = "${item.articlesCount}"
+
+        itemView.setOnClickListener {
+            containerView.ch_select.isChecked = !containerView.ch_select.isChecked
+            //listener(item, containerView.ch_select.isChecked)
         }
     }
 }
 
-private class CategoriesDiffUtilCallback : DiffUtil.ItemCallback<CategoryItem>() {
-    override fun areItemsTheSame(oldItem: CategoryItem, newItem: CategoryItem): Boolean =
-        oldItem.categoryId == newItem.categoryId
+class CategoryCallback : DiffUtil.ItemCallback<Pair<CategoryData, Boolean>>() {
+    override fun areItemsTheSame(
+        oldItem: Pair<CategoryData, Boolean>,
+        newItem: Pair<CategoryData, Boolean>
+    ) =
+        oldItem.first.categoryId == newItem.first.categoryId
 
-    override fun areContentsTheSame(oldItem: CategoryItem, newItem: CategoryItem): Boolean =
+    override fun areContentsTheSame(
+        oldItem: Pair<CategoryData, Boolean>,
+        newItem: Pair<CategoryData, Boolean>
+    ) =
         oldItem == newItem
 }
-
-data class CategoryItem(
-    val categoryId: String,
-    val icon: String,
-    val title: String,
-    val articlesCount: Int = 0,
-    val isChecked: Boolean = false
-)
-
-fun CategoryData.toCategoryItem(isChecked: Boolean = false) = CategoryItem(
-    categoryId = categoryId,
-    icon = icon,
-    title = title,
-    articlesCount = articlesCount,
-    isChecked = isChecked
-)

@@ -10,23 +10,23 @@ class PrefDelegate<T>(private val defaultValue: T) {
 
     operator fun provideDelegate(
         thisRef: PrefManager,
-        property: KProperty<*>
+        prop: KProperty<*>
     ): ReadWriteProperty<PrefManager, T> {
-        val key = property.name
+        val key = prop.name
         return object : ReadWriteProperty<PrefManager, T> {
-
             override fun getValue(thisRef: PrefManager, property: KProperty<*>): T {
-                val prefs = thisRef.preferences
-
                 if (storedValue == null) {
                     @Suppress("UNCHECKED_CAST")
                     storedValue = when (defaultValue) {
-                        is Boolean -> prefs.getBoolean(key, defaultValue as Boolean) as T
-                        is String -> prefs.getString(key, defaultValue as String) as T
-                        is Float -> prefs.getFloat(key, defaultValue as Float) as T
-                        is Int -> prefs.getInt(key, defaultValue as Int) as T
-                        is Long -> prefs.getLong(key, defaultValue as Long) as T
-                        else -> throw NotFoundRealizationException(defaultValue)
+                        is Int -> thisRef.preferences.getInt(key, defaultValue as Int) as T
+                        is Long -> thisRef.preferences.getLong(key, defaultValue as Long) as T
+                        is Float -> thisRef.preferences.getFloat(key, defaultValue as Float) as T
+                        is String -> thisRef.preferences.getString(key, defaultValue as String) as T
+                        is Boolean -> thisRef.preferences.getBoolean(
+                            key,
+                            defaultValue as Boolean
+                        ) as T
+                        else -> error("This type can not be stored into Preferences")
                     }
                 }
                 return storedValue!!
@@ -35,12 +35,12 @@ class PrefDelegate<T>(private val defaultValue: T) {
             override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T) {
                 with(thisRef.preferences.edit()) {
                     when (value) {
-                        is Boolean -> putBoolean(key, value)
                         is String -> putString(key, value)
-                        is Float -> putFloat(key, value)
                         is Int -> putInt(key, value)
+                        is Boolean -> putBoolean(key, value)
                         is Long -> putLong(key, value)
-                        else -> throw NotFoundRealizationException(value)
+                        is Float -> putFloat(key, value)
+                        else -> error("Only primitive types can be stored into Preferences")
                     }
                     apply()
                 }
@@ -49,25 +49,19 @@ class PrefDelegate<T>(private val defaultValue: T) {
 
         }
     }
-
-
-    class NotFoundRealizationException(value: Any?) :
-        Exception("Not found realization for $value")
 }
 
-class PrefObjDelegate<T>(
-    private val adapter: JsonAdapter<T>
-) {
+class PrefObjDelegate<T>(private val adapter: JsonAdapter<T>){
     private var storedValue: T? = null
 
     operator fun provideDelegate(
         thisRef: PrefManager,
-        property: KProperty<*>
+        prop: KProperty<*>
     ): ReadWriteProperty<PrefManager, T?> {
-        val key = property.name
-        return object : ReadWriteProperty<PrefManager, T?> {
+        val key = prop.name
+        return object : ReadWriteProperty<PrefManager, T?>{
             override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? {
-                if (storedValue == null) {
+                if(storedValue == null){
                     storedValue = thisRef.preferences.getString(key, null)
                         ?.let { adapter.fromJson(it) }
                 }
@@ -76,10 +70,12 @@ class PrefObjDelegate<T>(
 
             override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T?) {
                 storedValue = value
-                thisRef.preferences.edit()
-                    .putString(key, value?.let { adapter.toJson(it) })
-                    .apply()
+                with(thisRef.preferences.edit()){
+                    putString(key, value?.let { adapter.toJson(it) })
+                    apply()
+                }
             }
+
         }
     }
 }

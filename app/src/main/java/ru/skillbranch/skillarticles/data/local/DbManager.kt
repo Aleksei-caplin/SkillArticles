@@ -24,14 +24,13 @@ object DbManager {
         ArticlePersonalInfo::class,
         Tag::class,
         ArticleTagXRef::class,
-        ArticleContent::class
-    ],
+        ArticleContent::class],
     version = AppDb.DATABASE_VERSION,
     exportSchema = true,
     views = [ArticleItem::class, ArticleFull::class]
 )
 @TypeConverters(DateConverter::class)
-abstract class AppDb : RoomDatabase() {
+abstract class AppDb: RoomDatabase() {
     companion object {
         const val DATABASE_NAME = BuildConfig.APPLICATION_ID + ".db"
         const val DATABASE_VERSION = 1
@@ -43,6 +42,4 @@ abstract class AppDb : RoomDatabase() {
     abstract fun articlePersonalInfosDao(): ArticlePersonalInfosDao
     abstract fun tagsDao(): TagsDao
     abstract fun articleContentsDao(): ArticleContentsDao
-
-
 }

@@ -6,7 +6,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import ru.skillbranch.skillarticles.data.remote.err.ApiError
 import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
 import java.net.SocketTimeoutException
@@ -17,10 +20,9 @@ abstract class BaseViewModel<T : IViewModelState>(
 ) : ViewModel() {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
-
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val navigation = MutableLiveData<Event<NavigationCommand>>()
-    val loading = MutableLiveData<Loading>(Loading.HIDE_LOADING)
+    private val loading = MutableLiveData<Loading>(Loading.HIDE_LOADING)
 
     /***
      * Инициализация начального состояния аргументом конструктоа, и объявления состояния как
@@ -60,14 +62,14 @@ abstract class BaseViewModel<T : IViewModelState>(
         notifications.value = Event(content)
     }
 
-    /***
-     * отображение индикатора загрузки
+    /**
+     * отображение индикатора загрузки (по умолчанию не блокируюшиц loading)
      */
     protected fun showLoading(loadingType: Loading = Loading.SHOW_LOADING) {
         loading.value = loadingType
     }
 
-    /***
+    /**
      * скрытие индикатора загрузки
      */
     protected fun hideLoading() {
@@ -88,9 +90,9 @@ abstract class BaseViewModel<T : IViewModelState>(
 
     /***
      * более компактная форма записи observe() метода LiveData принимает последним аргумент лямбда
-     * выражение обрабатывающее изменение текущего стостояния индикатора загрузки
+     * выражение обрабатывающее изменение текущего индикатора загрузки
      */
-    fun observeLoading(owner: LifecycleOwner, onChanged: (newState: Loading) -> Unit) {
+    fun observeLoading(owner: LifecycleOwner, onChanged: (newLoading: Loading) -> Unit) {
         loading.observe(owner, Observer { onChanged(it!!) })
     }
 
@@ -100,13 +102,11 @@ abstract class BaseViewModel<T : IViewModelState>(
      * реализует данное поведение с помощью EventObserver
      */
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify) -> Unit) {
-        notifications.observe(owner,
-            EventObserver { onNotify(it) })
+        notifications.observe(owner, EventObserver { onNotify(it) })
     }
 
     fun observeNavigation(owner: LifecycleOwner, onNavigate: (command: NavigationCommand) -> Unit) {
-        navigation.observe(owner,
-            EventObserver { onNavigate(it) })
+        navigation.observe(owner, EventObserver { onNavigate(it) })
     }
 
     /***
@@ -131,54 +131,46 @@ abstract class BaseViewModel<T : IViewModelState>(
     fun restoreState() {
         val restoredState = currentState.restore(handleState) as T
         if (currentState == restoredState) return
-        state.value = currentState.restore(handleState) as T
+        state.value = restoredState
     }
 
-    protected fun launchSafety(
-        errorHandler: ((Throwable) -> Unit)? = null,
-        completionHandler: ((Throwable?) -> Unit)? = null,
+
+    protected fun launchSafely(
+        errHandler: ((Throwable) -> Unit)? = null,
+        compHandler: ((Throwable?) -> Unit)? = null,
         block: suspend CoroutineScope.() -> Unit
     ) {
-        val errHand = CoroutineExceptionHandler { _, throwable ->
-            errorHandler?.invoke(throwable) ?: when (throwable) {
-                is NoNetworkError -> notify(
-                    Notify.TextMessage("Network is not available, check internet connection")
-                )
-                is SocketTimeoutException -> notify(
-                    Notify.ActionMessage(
-                        "Network timeout exception - please try again",
-                        "Retry"
-                    ) { launchSafety(errorHandler, completionHandler, block) }
-                )
-                is ApiError.InternalServerError -> notify(
-                    Notify.ErrorMessage(
-                        throwable.message,
-                        "Retry"
-                    ) { launchSafety(errorHandler, completionHandler, block) }
-                )
-                is ApiError -> notify(
-                    Notify.ErrorMessage(throwable.message)
-                )
-                else -> notify(
-                    Notify.ErrorMessage(throwable.message ?: "Something wrong")
-                )
+        val errHand = CoroutineExceptionHandler { _, err ->
+            errHandler?.invoke(err) ?: when (err) {
+                is NoNetworkError -> notify(Notify.TextMessage("Network not available, check internet connection"))
+
+                is SocketTimeoutException -> notify(Notify.ActionMessage(
+                    "Network timeout exception - please try again",
+                    "Retry"
+                ) { launchSafely(errHandler, compHandler, block) })
+
+                is ApiError.InternalServerError -> notify(Notify.ErrorMessage(
+                    err.message,
+                    "Retry"
+                ) { launchSafely(errHandler, compHandler, block) })
+
+                is ApiError -> notify(Notify.ErrorMessage(err.message))
+
+                else -> notify(Notify.ErrorMessage(err.message ?: "Something wrong"))
             }
         }
 
         (viewModelScope + errHand).launch {
             showLoading()
-            withContext(Dispatchers.IO) {
-                block()
-            }
+            block()
         }.invokeOnCompletion {
             hideLoading()
-            completionHandler?.invoke(it)
+            compHandler?.invoke(it)
         }
     }
 }
 
 class Event<out E>(private val content: E) {
-
     var hasBeenHandled = false
 
     /***
@@ -193,7 +185,6 @@ class Event<out E>(private val content: E) {
     }
 
     fun peekContent(): E = content
-
 }
 
 /***
@@ -209,11 +200,9 @@ class EventObserver<E>(private val onEventUnhandledContent: (E) -> Unit) : Obser
             onEventUnhandledContent(it)
         }
     }
-
 }
 
 sealed class Notify() {
-
     abstract val message: String
 
     data class TextMessage(override val message: String) : Notify()
@@ -229,11 +218,9 @@ sealed class Notify() {
         val errLabel: String? = null,
         val errHandler: (() -> Unit)? = null
     ) : Notify()
-
 }
 
 sealed class NavigationCommand() {
-
     data class To(
         val destination: Int,
         val args: Bundle? = null,
@@ -248,7 +235,6 @@ sealed class NavigationCommand() {
     data class FinishLogin(
         val privateDestination: Int? = null
     ) : NavigationCommand()
-
 }
 
 enum class Loading {

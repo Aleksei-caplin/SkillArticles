@@ -1,7 +1,6 @@
 package ru.skillbranch.skillarticles.data.local.entities
 
 import androidx.room.*
-import ru.skillbranch.skillarticles.data.local.ListConverter
 import ru.skillbranch.skillarticles.data.local.MarkdownConverter
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import java.util.*
@@ -70,18 +69,15 @@ data class ArticleItem(
     """
         SELECT id, article.title AS title, description, author_user_id, author_avatar, author_name, date, 
         category.category_id AS category_category_id, category.title AS category_title, category.icon AS category_icon,
-        content.share_link AS share_link, content.content AS content, 
-        personal.is_bookmark AS is_bookmark, personal.is_like AS is_like, content.source AS source,
-        GROUP_CONCAT (refs.t_id, ";") AS tags
+        content.share_link AS share_link, content.content AS content,
+        personal.is_bookmark AS is_bookmark, personal.is_like AS is_like, content.source as source
         FROM articles AS article
         INNER JOIN article_categories AS category ON category.category_id = article.category_id
         LEFT JOIN article_contents AS content ON content.article_id = id
         LEFT JOIN article_personal_infos AS personal ON personal.article_id = id
-        LEFT JOIN article_tag_x_ref AS refs ON refs.a_id = id
-        GROUP BY article.id
     """
 )
-@TypeConverters(MarkdownConverter::class, ListConverter::class)
+@TypeConverters(MarkdownConverter::class)
 data class ArticleFull(
     val id: String,
     val title: String,
@@ -99,5 +95,14 @@ data class ArticleFull(
     val date: Date,
     val content: List<MarkdownElement>? = null,
     val source: String? = null,
-    val tags: List<String> = emptyList()
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "tag",
+        associateBy = Junction(
+            value = ArticleTagXRef::class,
+            parentColumn = "a_id",
+            entityColumn = "t_id"
+        )
+    )
+    val tags: List<Tag> = emptyList()
 )
