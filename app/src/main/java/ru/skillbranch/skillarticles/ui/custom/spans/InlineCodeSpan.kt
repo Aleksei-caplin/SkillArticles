@@ -10,13 +10,19 @@ import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
 
 class InlineCodeSpan(
-    @ColorInt private val textColor: Int,
-    @ColorInt private val bgColor: Int,
-    @Px private val cornerRadius: Float,
-    @Px private val padding: Float
+    @ColorInt
+    private val textColor: Int,
+    @ColorInt
+    private val bgColor: Int,
+    @Px
+    private val cornerRadius: Float,
+    @Px
+    private val padding: Float
 ) : ReplacementSpan() {
-    private var rect: RectF = RectF()
-    private var measureWidth: Int = 0
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var rect: RectF = RectF()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var measureWidth: Int = 0
     lateinit var bounds: IntRange
 
     override fun getSize(
@@ -28,8 +34,9 @@ class InlineCodeSpan(
     ): Int {
         bounds = start..end
         paint.forText {
-            val measureText = paint.measureText(text.toString(), start, end) // ширина текста
+            val measureText = paint.measureText(text.toString(), start, end)
             measureWidth = (measureText + 2 * padding).toInt()
+            fm?.top = paint.fontMetrics.top.toInt()
         }
         return measureWidth
     }
@@ -45,7 +52,6 @@ class InlineCodeSpan(
         bottom: Int,
         paint: Paint
     ) {
-
         paint.forBackground {
             rect.set(x, top.toFloat(), x + measureWidth, y + paint.descent())
             canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
@@ -84,5 +90,13 @@ class InlineCodeSpan(
 
         color = oldColor
         style = oldStyle
+    }
+
+    fun getExtraPadding(spanStart: Int, spanEnd: Int, horizontalPadding: Int) : Pair<Int, Int> {
+        var startPad = 0
+        var endPad = 0
+        if(spanStart != bounds.first) startPad = (padding).toInt() + horizontalPadding
+        if(spanEnd != bounds.last) endPad = -horizontalPadding
+        return startPad to endPad
     }
 }

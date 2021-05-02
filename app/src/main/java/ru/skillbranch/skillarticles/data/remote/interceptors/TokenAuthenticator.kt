@@ -9,19 +9,29 @@ import ru.skillbranch.skillarticles.data.remote.NetworkManager
 import ru.skillbranch.skillarticles.data.remote.req.RefreshReq
 
 class TokenAuthenticator : Authenticator {
+    private val prefs = PrefManager
+    private val api by lazy { NetworkManager.api }
+
     override fun authenticate(route: Route?, response: Response): Request? {
-        if (response.code == 401) {
-            val refreshRes = NetworkManager.api.refreshAccessToken(RefreshReq(PrefManager.refreshToken)).execute()
-            return if (refreshRes.isSuccessful) {
-                PrefManager.accessToken = "Bearer ${refreshRes.body()!!.accessToken}"
-                PrefManager.refreshToken = refreshRes.body()!!.refreshToken
+        return if (prefs.accessToken.isNotEmpty() && response.code == 401) {
+            getNewToken()?.let {
                 response.request.newBuilder()
-                    .header("Authorization", "Bearer ${refreshRes.body()!!.accessToken} ")
+                    .header("Authorization", it)
                     .build()
-            } else {
-                null
             }
-        }
-        return null
+        } else null
+    }
+
+    private fun getNewToken(): String? {
+        val oldRefreshToken = prefs.refreshToken
+        val response = api.refreshToken(RefreshReq(oldRefreshToken)).execute()
+        return if (response.isSuccessful) {
+            response.body()?.let {
+                val newAccessToken = "Bearer ${it.accessToken}"
+                prefs.accessToken = newAccessToken
+                prefs.refreshToken = it.refreshToken
+                newAccessToken
+            }
+        } else null
     }
 }

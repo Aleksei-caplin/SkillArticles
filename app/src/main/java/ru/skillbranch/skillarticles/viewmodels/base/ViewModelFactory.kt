@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package ru.skillbranch.skillarticles.viewmodels.base
 
 import android.os.Bundle
@@ -13,7 +15,12 @@ class ViewModelFactory(
     defaultArgs: Bundle = bundleOf(),
     private val params: Any
 ) : AbstractSavedStateViewModelFactory(owner, defaultArgs) {
-    override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
+
+    override fun <T : ViewModel?> create(
+        key: String,
+        modelClass: Class<T>,
+        handle: SavedStateHandle
+    ): T {
         if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
             return ArticleViewModel(handle, params as String) as T
         }

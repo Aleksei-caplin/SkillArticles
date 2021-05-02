@@ -1,3 +1,7 @@
 package ru.skillbranch.skillarticles.data.remote.req
 
-data class LoginReq(val login:String, val password:String)
+//@JsonClass(generateAdapter = true)
+data class LoginReq(
+    val login: String,
+    val password: String
+)

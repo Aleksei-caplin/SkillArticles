@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
 interface IArticleViewModel {
+
     /**
      * Получение настроек приложения
      */
@@ -40,7 +41,7 @@ interface IArticleViewModel {
      * необходимо отобразить сообщение с ошибкой пользователю (Notify.ErrorMessage) "Share is not implemented"
      * и текстом errLabel "OK"
      */
-    fun handleShare()
+    fun handleShare(handleShareCallback: () -> Unit)
 
     /**
      * обрабока нажатия на кнопку btn_settings
@@ -60,4 +61,24 @@ interface IArticleViewModel {
      * searchView при изменении конфигурации (пересоздании активити)
      */
     fun handleSearch(query: String?)
+
+    /**
+     * обрабока нажатия на btn_result_up ,необходимо перенести фокус на предидущее поисковое вхождение
+     */
+    fun handleUpResult()
+
+    /**
+     * обрабока нажатия на btn_result_down ,необходимо перенести фокус на следующее поисковое вхождение
+     */
+    fun handleDownResult()
+
+    /**
+     * обрабока нажатия на iv_copy в MarkdownCodeView, необходимо скопировать код из MarkdownCodeView в буфер обмена
+     **/
+    fun handleCopyCode()
+
+    /**
+     * обрабока отправки комментария, если пользователь не авторизован отобразить экран авторизации
+     **/
+    fun handleSendComment(comment: String?)
 }

@@ -9,15 +9,10 @@ import androidx.room.PrimaryKey
 data class Tag(
     @PrimaryKey
     val tag: String,
-
     @ColumnInfo(name = "use_count")
     val useCount: Int = 0
 )
 
-/**
- * Many-To-Many relationship
- * See https://medium.com/androiddevelopers/database-relations-with-room-544ab95e4542
- */
 @Entity(
     tableName = "article_tag_x_ref",
     primaryKeys = ["t_id", "a_id"],
@@ -32,7 +27,6 @@ data class Tag(
 data class ArticleTagXRef(
     @ColumnInfo(name = "a_id")
     val articleId: String,
-
     @ColumnInfo(name = "t_id")
     val tagId: String
 )

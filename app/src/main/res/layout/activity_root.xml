@@ -21,7 +21,6 @@
             android:theme="@style/ArticleBarsTheme"
             app:layout_scrollFlags="scroll|enterAlwaysCollapsed"
             app:title="@string/app_name" />
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <fragment

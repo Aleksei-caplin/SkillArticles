@@ -1,3 +1,6 @@
 package ru.skillbranch.skillarticles.data.remote.res
 
-data class BookmarkRes(val message: String)
+//@JsonClass(generateAdapter = true)
+data class BookmarkRes(
+    val message: String
+)

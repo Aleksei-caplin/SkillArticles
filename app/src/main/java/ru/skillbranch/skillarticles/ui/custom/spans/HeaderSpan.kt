@@ -1,7 +1,6 @@
 package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
@@ -14,17 +13,27 @@ import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
 
-class HeaderSpan constructor(
-    @IntRange(from = 1, to = 6) private val level: Int,
-    @ColorInt private val textColor: Int,
-    @ColorInt private val dividerColor: Int,
-    @Px private val marginTop: Float,
-    @Px private val marginBottom: Float
-) : MetricAffectingSpan(), LineHeightSpan, LeadingMarginSpan {
 
-    private val linePadding = 0.4f
+class HeaderSpan constructor(
+    @IntRange(from = 1, to = 6)
+    private val level: Int,
+    @ColorInt
+    private val textColor: Int,
+    @ColorInt
+    private val dividerColor: Int,
+    @Px
+    private val marginTop: Float,
+    @Px
+    private val marginBottom: Float
+) :
+    MetricAffectingSpan(), LineHeightSpan, LeadingMarginSpan {
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val linePadding = 0.4f
     private var originAscent = 0
-    private val sizes = mapOf(
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val sizes = mapOf(
         1 to 2f,
         2 to 1.5f,
         3 to 1.25f,
@@ -46,28 +55,26 @@ class HeaderSpan constructor(
         lineHeight: Int,
         fm: Paint.FontMetricsInt?
     ) {
-
         fm ?: return
 
         text as Spanned
         val spanStart = text.getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
 
-        if(spanStart == start){
+        if (spanStart == start) {
             originAscent = fm.ascent
             fm.ascent = (fm.ascent - marginTop).toInt()
             topExtraPadding = marginTop.toInt()
             firstLineBounds = start..end.dec()
-        }else{
+        } else {
             fm.ascent = originAscent
         }
 
-
         //line break +1 character
-        if(spanEnd == end.dec()){
+        if (spanEnd == end.dec()) {
             val originDescent = fm.descent
-            val originHeight = fm.descent - originAscent
-            fm.descent = (originHeight * linePadding + marginBottom).toInt()
+            val originalHeight = fm.descent - originAscent
+            fm.descent = (originalHeight * linePadding + marginBottom).toInt()
             bottomExtraPadding = fm.descent - originDescent
             lastLineBounds = start..end.dec()
         }
@@ -96,8 +103,8 @@ class HeaderSpan constructor(
         lineTop: Int, lineBaseline: Int, lineBottom: Int, text: CharSequence?, lineStart: Int,
         lineEnd: Int, isFirstLine: Boolean, layout: Layout?
     ) {
-        //for 1 or 2 level and last line
-        if ((level == 1 || level == 2) && (text as Spanned).getSpanEnd(this) == lineEnd) {
+        //for 1st & 2nd levels & the last line
+        if ((level in 1..2) && ((text as Spanned).getSpanEnd(this) == lineEnd)) {
             paint.forLine {
                 val lh = (paint.descent() - paint.ascent()) * sizes.getOrElse(level) { 1f }
                 val lineOffset = lineBaseline + lh * linePadding
@@ -132,5 +139,4 @@ class HeaderSpan constructor(
         style = oldStyle
         strokeWidth = oldWidth
     }
-
 }

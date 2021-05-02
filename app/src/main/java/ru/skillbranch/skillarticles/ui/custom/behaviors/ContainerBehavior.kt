@@ -11,7 +11,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class ContainerBehavior() : AppBarLayout.ScrollingViewBehavior() {
-    constructor(context: Context, attributeSet: AttributeSet): this()
+    constructor(context: Context, attributeSet: AttributeSet) : this()
 
     override fun onMeasureChild(
         parent: CoordinatorLayout,
@@ -21,14 +21,12 @@ class ContainerBehavior() : AppBarLayout.ScrollingViewBehavior() {
         parentHeightMeasureSpec: Int,
         heightUsed: Int
     ): Boolean {
-        if (child is FragmentContainerView && !child.children.first().isNestedScrollingEnabled) {
-            val appbar = parent.children.find { it is AppBarLayout }
-            val appbarHeight = appbar?.measuredHeight ?: 0
-
-            val bottombar = parent.children.find { it is BottomNavigationView }
-            val bottombarHeight = if (bottombar?.isVisible == true) bottombar.measuredHeight else 0
-
-            val height = View.MeasureSpec.getSize(parentHeightMeasureSpec) - appbarHeight - bottombarHeight
+        return if (child is FragmentContainerView && !child.children.first().isNestedScrollingEnabled) {
+            val appBar = parent.children.find { it is AppBarLayout }
+            val ah = appBar?.measuredHeight ?: 0
+            val bottomBar = parent.children.find { it is BottomNavigationView }
+            val bh = if (bottomBar?.isVisible == true) bottomBar.measuredHeight else 0
+            val height = View.MeasureSpec.getSize(parentHeightMeasureSpec) - ah - bh
             parent.onMeasureChild(
                 child,
                 parentWidthMeasureSpec,
@@ -36,11 +34,8 @@ class ContainerBehavior() : AppBarLayout.ScrollingViewBehavior() {
                 View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),
                 heightUsed
             )
-
-            return true
-        }
-
-        return super.onMeasureChild(
+            true
+        } else super.onMeasureChild(
             parent,
             child,
             parentWidthMeasureSpec,

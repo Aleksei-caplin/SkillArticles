@@ -4,7 +4,7 @@ import ru.skillbranch.skillarticles.ui.base.Binding
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class RenderProp<T: Any>(
+class RenderProp<T : Any>(
     var value: T,
     private val needInit: Boolean = true,
     private val onChange: ((T) -> Unit)? = null
@@ -27,13 +27,13 @@ class RenderProp<T: Any>(
     override fun getValue(thisRef: Binding, property: KProperty<*>): T = value
 
     override fun setValue(thisRef: Binding, property: KProperty<*>, value: T) {
-        if (this.value == value) return
+        if (value == this.value) return
         this.value = value
         onChange?.invoke(this.value)
-
         if (listeners.isNotEmpty()) listeners.forEach { it.invoke() }
     }
 
+    // register additional listener
     fun addListener(listener: () -> Unit) {
         listeners.add(listener)
     }

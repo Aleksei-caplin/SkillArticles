@@ -15,12 +15,21 @@ class DateConverter {
 
 class MarkdownConverter {
     @TypeConverter
-    fun toMarkdown(content: String?): List<MarkdownElement>? {
-        return content?.let { MarkdownParser.parse(it) }
-    }
+    fun toMarkdown(content: String?): List<MarkdownElement>? =
+        content?.let { MarkdownParser.parse(it) }
 }
 
 class ListConverter {
+    companion object {
+        const val SPLITTING_SYMBOLS = ";"
+    }
+
     @TypeConverter
-    fun toList(str: String?): List<String> = str?.split(",") ?: emptyList()
+    fun String?.toListOfStrings(): List<String> =
+        this?.split(SPLITTING_SYMBOLS) ?: emptyList()
+
+
+    @TypeConverter
+    fun List<String>.toStringConverter(): String =
+        this.joinToString(separator = SPLITTING_SYMBOLS) { it }
 }

@@ -14,8 +14,7 @@
         android:src="@drawable/ic_avatar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_name"
@@ -28,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_avatar"
-        tools:text="Hello" />
+        tools:text="@tools:sample/full_names" />
 
     <TextView
         android:id="@+id/tv_rating"
@@ -40,13 +39,13 @@
         android:gravity="center"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:text="Rating:"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toStartOf="@+id/tv_respect"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_name" />
+        app:layout_constraintTop_toBottomOf="@id/tv_name"
+        tools:text="Rating: 56" />
 
     <TextView
         android:id="@+id/tv_respect"
@@ -58,12 +57,12 @@
         android:gravity="center"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:text="Respect:"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/tv_rating"
-        app:layout_constraintTop_toBottomOf="@id/tv_name" />
+        app:layout_constraintTop_toBottomOf="@id/tv_name"
+        tools:text="Respect: 54" />
 
     <TextView
         android:id="@+id/tv_about"
@@ -77,7 +76,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_rating"
-        tools:text="lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum" />
-
+        tools:text="@tools:sample/lorem/random" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

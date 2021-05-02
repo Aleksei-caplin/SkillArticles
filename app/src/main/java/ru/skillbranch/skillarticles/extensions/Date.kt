@@ -2,74 +2,109 @@ package ru.skillbranch.skillarticles.extensions
 
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.absoluteValue
 
 const val SECOND = 1000L
 const val MINUTE = 60 * SECOND
 const val HOUR = 60 * MINUTE
 const val DAY = 24 * HOUR
 
-val Int.sec get() = this * SECOND
-val Int.min get() = this * MINUTE
-val Int.hour get() = this * HOUR
-val Int.day get() = this * DAY
 
 fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String {
-    val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
+    val dateFormat = SimpleDateFormat(pattern, Locale.getDefault())
     return dateFormat.format(this)
 }
 
-fun Date.shortFormat(): String {
-    val pattern = if(this.isSameDay(Date())) "HH:mm" else "dd.MM.yy"
-    val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
-    return  dateFormat.format(this)
-}
-
-fun Date.isSameDay(date: Date): Boolean {
-    val day1 = this.time / DAY
-    val day2 = date.time / DAY
-    return  day1 == day2
-}
-
-fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
-    var time = this.time
-
-    time += when (units) {
+fun Date.add(value: Int, unit: TimeUnits = TimeUnits.SECOND): Date {
+    time += when (unit) {
         TimeUnits.SECOND -> value * SECOND
         TimeUnits.MINUTE -> value * MINUTE
         TimeUnits.HOUR -> value * HOUR
         TimeUnits.DAY -> value * DAY
     }
-    this.time = time
     return this
 }
 
-fun Date.humanizeDiff(date: Date = Date()): String {
-    val duration = ((date.time - 200)/1000 - (this.time - 200)/1000) * 1000
+fun Date.shortFormat(): String? {
+    val pattern = if (this.isSameDay(Date())) "HH:mm" else "dd.MM.yy"
+    return this.format(pattern)
+}
 
-    return if (duration >= 0) {
-        when (duration) {
-            in 0.sec..1.sec -> "только что"
-            in 2.sec..45.sec -> "несколько секунд назад"
-            in 46.sec..75.sec -> "минуту назад"
-            in 76.sec..45.min -> "${TimeUnits.MINUTE.plural((duration.absoluteValue / MINUTE).toInt())} назад"
-            in 46.min..75.min -> "час назад"
-            in 76.min..22.hour -> "${TimeUnits.HOUR.plural((duration.absoluteValue / HOUR).toInt())} назад"
-            in 23.hour..26.hour -> "день назад"
-            in 27.hour..360.day -> "${TimeUnits.DAY.plural((duration.absoluteValue / DAY).toInt())} назад"
-            else -> "более года назад"
+fun Date.isSameDay(date: Date): Boolean {
+    val day1 = this.time / DAY
+    val day2 = date.time / DAY
+    return day1 == day2
+}
+
+fun Date.humanizeDiff(date: Date = Date()): String {
+    val diff = date.time - this.time
+
+    return when (Locale.getDefault()) {
+        Locale("ru") -> humanizeDiffRu(diff)
+        else -> humanizeDiffEng(diff)
+    }
+}
+
+private fun humanizeDiffRu(timeDiff: Long): String {
+    var diff = timeDiff
+    var isInFuture = false
+    val pattern =
+        if (diff > 0) "%s назад"
+        else {
+            isInFuture = true
+            diff = -diff
+            "через %s"
         }
-    } else {
-        when (duration) {
-            in (-45).sec..0.sec -> "через несколько секунд"
-            in (-75).sec..(-45).sec -> "через минуту"
-            in (-45).min..(-75).sec -> "через ${TimeUnits.MINUTE.plural((duration.absoluteValue / MINUTE).toInt())}"
-            in (-75).min..(-45).min -> "через час"
-            in (-22).hour..(-75).min -> "через ${TimeUnits.HOUR.plural((duration.absoluteValue / HOUR).toInt())}"
-            in (-26).hour..(-22).hour -> "через день"
-            in (-360).day..(-26).hour -> "через ${TimeUnits.DAY.plural((duration.absoluteValue / DAY).toInt())}"
-            else -> "более чем через год"
+
+    return when (diff) {
+        in (0..SECOND) ->
+            "только что"
+        in (SECOND..45 * SECOND) ->
+            pattern.format("несколько секунд")
+        in (45 * SECOND..75 * SECOND) ->
+            pattern.format("минуту")
+        in (75 * SECOND..45 * MINUTE) ->
+            pattern.format(TimeUnits.MINUTE.pluralRu((diff / MINUTE).toInt()))
+        in (45 * MINUTE..75 * MINUTE) ->
+            pattern.format("час")
+        in (75 * MINUTE..22 * HOUR) ->
+            pattern.format(TimeUnits.HOUR.pluralRu((diff / HOUR).toInt()))
+        in (22 * HOUR..26 * HOUR) ->
+            pattern.format("день")
+        in (26 * HOUR..360 * DAY) ->
+            pattern.format(TimeUnits.DAY.pluralRu((diff / DAY).toInt()))
+        in (360 * DAY..Long.MAX_VALUE) ->
+            if (isInFuture) pattern.format("более чем год")
+            else pattern.format("более года")
+        else -> "Ошибка!"
+    }
+}
+
+private fun humanizeDiffEng(timeDiff: Long): String {
+    var diff = timeDiff
+    val seconds = (diff / 1000)
+    val minutes = (seconds / 60)
+    val hours = (minutes / 60)
+    val days = (hours / 24)
+
+    var isInFuture = false
+    val pattern =
+        if (diff > 0) "%s ago"
+        else {
+            isInFuture = true
+            diff = -diff
+            "in %s"
         }
+
+    return when (diff) {
+        in 0L..1 * SECOND -> "just now"
+        in 1 * SECOND..45 * SECOND -> pattern.format("a few seconds")
+        in 45 * SECOND..75 * SECOND -> pattern.format("a minute")
+        in 75 * SECOND..45 * MINUTE -> pattern.format("$minutes minutes")
+        in 45 * MINUTE..75 * MINUTE -> pattern.format("an hour")
+        in 75 * MINUTE..22 * HOUR -> pattern.format("$hours hour")
+        in 22 * HOUR..26 * HOUR -> pattern.format("one day")
+        in 26 * HOUR..360 * DAY -> pattern.format("$days days")
+        else -> pattern.format("more than a year")
     }
 }
 
@@ -79,52 +114,41 @@ enum class TimeUnits {
     MINUTE,
     HOUR,
     DAY;
-    fun plural(value: Int): String {
-        return when(this) {
-            SECOND -> secondAsPlurals(value * 1L)
-            MINUTE -> minuteAsPlurals(value * 1L)
-            HOUR -> hourAsPlurals(value * 1L)
-            DAY -> dayAsPlurals(value * 1L)
+
+    fun pluralRu(value: Int): String {
+
+        val rangeType = when {
+            value in (5..20) || value % 10 in (5..10) -> 3
+            value % 10 == 1 -> 1
+            value % 10 in (2..4) -> 2
+            else -> 3
+        }
+
+        return when (this) {
+            SECOND -> when (rangeType) {
+                1 -> "$value секунду"
+                2 -> "$value секунды"
+                3 -> "$value секунд"
+                else -> "er1ошибка"
+            }
+            MINUTE -> when (rangeType) {
+                1 -> "$value минуту"
+                2 -> "$value минуты"
+                3 -> "$value минут"
+                else -> "er2ошибка"
+            }
+            HOUR -> when (rangeType) {
+                1 -> "$value час"
+                2 -> "$value часа"
+                3 -> "$value часов"
+                else -> "er3ошибка"
+            }
+            DAY -> when (rangeType) {
+                1 -> "$value день"
+                2 -> "$value дня"
+                3 -> "$value дней"
+                else -> "er4ошибка"
+            }
         }
     }
-}
-
-private fun secondAsPlurals(value: Long) = when(value.asPlurals) {
-    Plurals.ONE -> "$value секунду"
-    Plurals.FEW -> "$value секунды"
-    Plurals.MANY -> "$value секунд"
-}
-
-private fun minuteAsPlurals(value: Long) = when(value.asPlurals) {
-    Plurals.ONE -> "$value минуту"
-    Plurals.FEW -> "$value минуты"
-    Plurals.MANY -> "$value минут"
-}
-
-private fun hourAsPlurals(value: Long) = when(value.asPlurals) {
-    Plurals.ONE -> "$value час"
-    Plurals.FEW -> "$value часа"
-    Plurals.MANY -> "$value часов"
-}
-
-private fun dayAsPlurals(value: Long) = when(value.asPlurals) {
-    Plurals.ONE -> "$value день"
-    Plurals.FEW -> "$value дня"
-    Plurals.MANY -> "$value дней"
-}
-
-val Long.asPlurals
-    get() = when {
-
-        this % 100L in 5L..20L -> Plurals.MANY
-        this % 10L == 1L -> Plurals.ONE
-        this % 10L in 2L..4L -> Plurals.FEW
-
-        else -> Plurals.MANY
-    }
-
-enum class Plurals {
-    ONE,
-    FEW,
-    MANY
 }

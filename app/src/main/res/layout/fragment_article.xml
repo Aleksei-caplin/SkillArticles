@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/refresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.article.ArticleFragment">
+    android:layout_height="match_parent">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll"
@@ -73,7 +73,7 @@
 
             <ImageView
                 android:id="@+id/iv_poster"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
@@ -102,12 +102,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:lineSpacingExtra="4dp"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_text_content" />
+                app:layout_constraintTop_toBottomOf="@id/tv_text_content"
+                tools:text="#SomeTag" />
 
             <TextView
                 android:id="@+id/tv_source"
@@ -119,7 +121,8 @@
                 android:includeFontPadding="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_hashtags" />
+                app:layout_constraintTop_toBottomOf="@id/tv_hashtags"
+                tools:text="www.some.link.com" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/wrap_comments"
@@ -138,7 +141,7 @@
                 app:endIconTint="@color/color_gray"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_source">
+                app:layout_constraintTop_toBottomOf="@id/tv_source">
 
                 <EditText
                     android:id="@+id/et_comment"
@@ -153,17 +156,16 @@
                 android:id="@+id/rv_comments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/color_surface"
+                android:background="?attr/colorSurface"
                 android:nestedScrollingEnabled="false"
+                android:paddingStart="16dp"
                 android:paddingBottom="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/wrap_comments"
+                app:layout_constraintTop_toBottomOf="@+id/wrap_comments"
                 tools:listitem="@layout/item_comment" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     </androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

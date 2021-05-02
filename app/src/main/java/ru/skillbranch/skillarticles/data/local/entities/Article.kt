@@ -70,57 +70,34 @@ data class ArticleItem(
     """
         SELECT id, article.title AS title, description, author_user_id, author_avatar, author_name, date, 
         category.category_id AS category_category_id, category.title AS category_title, category.icon AS category_icon,
-        content.share_link AS share_link, content.content AS content,
-        personal.is_bookmark AS is_bookmark, personal.is_like AS is_like, GROUP_CONCAT(refs.t_id) as tags, source
+        content.share_link AS share_link, content.content AS content, 
+        personal.is_bookmark AS is_bookmark, personal.is_like AS is_like, content.source AS source,
+        GROUP_CONCAT (refs.t_id, ";") AS tags
         FROM articles AS article
+        INNER JOIN article_categories AS category ON category.category_id = article.category_id
+        LEFT JOIN article_contents AS content ON content.article_id = id
         LEFT JOIN article_personal_infos AS personal ON personal.article_id = id
-        LEFT JOIN article_contents AS content ON content.article_id =id
-        LEFT JOIN article_categories AS category ON category.category_id =article.category_id
-        LEFT JOIN article_tag_x_ref AS refs ON id = refs.a_id 
-        GROUP BY id
+        LEFT JOIN article_tag_x_ref AS refs ON refs.a_id = id
+        GROUP BY article.id
     """
 )
 @TypeConverters(MarkdownConverter::class, ListConverter::class)
 data class ArticleFull(
     val id: String,
-
     val title: String,
-
     val description: String,
-
     @Embedded(prefix = "author_")
     val author: Author,
-
     @Embedded(prefix = "category_")
     val category: Category,
-
     @ColumnInfo(name = "share_link")
     val shareLink: String? = null,
-
     @ColumnInfo(name = "is_bookmark")
     val isBookmark: Boolean = false,
-
     @ColumnInfo(name = "is_like")
     val isLike: Boolean = false,
-
     val date: Date,
-
     val content: List<MarkdownElement>? = null,
-
     val source: String? = null,
-
     val tags: List<String> = emptyList()
-)
-
-data class ArticleWithShareLink(
-    val id: String,
-    val title: String,
-    val description: String,
-    @Relation(
-        entity = ArticleContent::class,
-        parentColumn = "id",
-        entityColumn = "article_id",
-        projection = ["share_link"]
-    )
-    val link: String
 )
